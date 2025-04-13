@@ -247,29 +247,6 @@
             </select>
         </div>
 
-        <!-- Day Filter -->
-        <div class="mb-4 sm:mb-6">
-            <select id="day-filter-mobile" class="block sm:hidden w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
-                <option value="all">جميع الأيام</option>
-                <option value="Saturday">السبت</option>
-                <option value="Sunday">الأحد</option>
-                <option value="Monday">الإثنين</option>
-                <option value="Tuesday">الثلاثاء</option>
-                <option value="Wednesday">الأربعاء</option>
-                <option value="Thursday">الخميس</option>
-                <option value="Friday">الجمعة</option>
-            </select>
-            <div class="hidden sm:flex flex-wrap gap-2 justify-center">
-                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition active" data-day="all">جميع الأيام</button>
-                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Saturday">السبت</button>
-                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Sunday">الأحد</button>
-                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Monday">الإثنين</button>
-                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Tuesday">الثلاثاء</button>
-                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Wednesday">الأربعاء</button>
-                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Thursday">الخميس</button>
-                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Friday">الجمعة</button>
-            </div>
-        </div>
 
         <!-- Manage Zoom Links -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
@@ -308,6 +285,30 @@
             <input id="new-time" type="text" placeholder="الوقت (مثال: ٥:٣٠ صباحًا)" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
             <select id="new-link" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"></select>
             <button id="add-session" class="admin-button inline-block mt-3 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full">إضافة الحلقة</button>
+        </div>
+        
+        <!-- Day Filter -->
+        <div class="mb-4 sm:mb-6">
+            <select id="day-filter-mobile" class="block sm:hidden w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <option value="all">جميع الأيام</option>
+                <option value="Saturday">السبت</option>
+                <option value="Sunday">الأحد</option>
+                <option value="Monday">الإثنين</option>
+                <option value="Tuesday">الثلاثاء</option>
+                <option value="Wednesday">الأربعاء</option>
+                <option value="Thursday">الخميس</option>
+                <option value="Friday">الجمعة</option>
+            </select>
+            <div class="hidden sm:flex flex-wrap gap-2 justify-center">
+                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition active" data-day="all">جميع الأيام</button>
+                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Saturday">السبت</button>
+                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Sunday">الأحد</button>
+                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Monday">الإثنين</button>
+                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Tuesday">الثلاثاء</button>
+                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Wednesday">الأربعاء</button>
+                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Thursday">الخميس</button>
+                <button class="day-button px-4 py-2 text-white rounded-lg font-semibold transition" data-day="Friday">الجمعة</button>
+            </div>
         </div>
 
         <!-- Session List -->
@@ -360,7 +361,20 @@
         const addZoomLinkButton = document.getElementById('add-zoom-link');
         const newZoomLinkInput = document.getElementById('new-zoom-link');
         const zoomLinkList = document.getElementById('zoom-link-list');
+        
 
+        // Day translations
+        const dayTranslations = {
+            all: "جميع الأيام",
+            Sunday: "الأحد",
+            Monday: "الإثنين",
+            Tuesday: "الثلاثاء",
+            Wednesday: "الأربعاء",
+            Thursday: "الخميس",
+            Friday: "الجمعة",
+            Saturday: "السبت"
+        };
+        
         // Data arrays (populated from Firestore)
         let sessions = [];
         let teachers = [];
@@ -510,8 +524,8 @@
                     </div>
                     <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">🎙 ${session.teacher}</p>
                     <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">🕒 ${session.time}</p>
+                    <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">📅 ${dayTranslations[session.day]}</p>
                     <div class="session-details hidden">
-                        <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">📅 ${session.day}</p>
                         <a href="${session.link}" target="_blank" class="join-button inline-block mt-2 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full text-center">انضم إلى الحلقة</a>
                         <div class="mt-3 sm:mt-4 flex flex-wrap gap-2">
                             <button class="edit-session edit-button px-3 sm:px-4 py-2 text-white rounded-lg font-semibold transition grow">تعديل</button>
