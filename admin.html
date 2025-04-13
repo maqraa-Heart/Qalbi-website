@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title> إدارة الحلقات</title>
-    
+    <title>إدارة الحلقات</title>
+
+    <meta property="og:image" content="https://maqraa-heart.web.app/fav.png">
+    <meta property="og:url" content="https://maqraa-heart.github.io/Qalbi-website/">
+    <meta property="og:type" content="website">
+
     <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
@@ -15,7 +19,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
 
-    
     <style>
         html, body {
             height: 100%;
@@ -95,14 +98,6 @@
             font-size: 1rem;
         }
         .toggle-button:hover {
-            background: linear-gradient(to right, #4b5563, #6b7280);
-        }
-        .move-button {
-            background: linear-gradient(to right, #6b7280, #9ca3af);
-            min-height: 48px;
-            font-size: 1rem;
-        }
-        .move-button:hover {
             background: linear-gradient(to right, #4b5563, #6b7280);
         }
         .modal {
@@ -229,7 +224,7 @@
 
         <header class="text-center mb-6 sm:mb-12 p-4 sm:p-8 text-white rounded-xl relative">
             <p class="text-base sm:text-xl font-semibold">السلام عليكم ورحمة الله وبركاته</p>
-            <h1 class="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3"> إدارة الحلقات</h1>
+            <h1 class="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3">إدارة الحلقات</h1>
             <p class="text-base sm:text-xl">إدارة الدروس والمحاضرات الدينية</p>
         </header>
 
@@ -254,7 +249,6 @@
                 <option value="Friday">الجمعة</option>
             </select>
         </div>
-
 
         <!-- Manage Zoom Links -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
@@ -282,19 +276,25 @@
             <input id="new-topic" type="text" placeholder="عنوان الحلقة" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
             <select id="new-teacher" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"></select>
             <select id="session-day" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <option value="Saturday">السبت</option>
                 <option value="Sunday">الأحد</option>
                 <option value="Monday">الإثنين</option>
                 <option value="Tuesday">الثلاثاء</option>
                 <option value="Wednesday">الأربعاء</option>
                 <option value="Thursday">الخميس</option>
                 <option value="Friday">الجمعة</option>
-                <option value="Saturday">السبت</option>
             </select>
             <input id="new-time" type="text" placeholder="الوقت (مثال: ٥:٣٠ صباحًا)" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
             <select id="new-link" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"></select>
             <button id="add-session" class="admin-button inline-block mt-3 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full">إضافة الحلقة</button>
         </div>
-        
+        <!-- Import Sessions from CSV -->
+        <!-- <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">استيراد حلقات من ملف CSV</h2>
+            <input id="csv-file" type="file" accept=".csv" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <button id="import-csv" class="admin-button inline-block mt-3 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full">استيراد</button>
+        </div> -->
+
         <!-- Day Filter -->
         <div class="mb-4 sm:mb-6">
             <select id="day-filter-mobile" class="block sm:hidden w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
@@ -327,6 +327,7 @@
         </footer>
     </div>
 
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
@@ -370,17 +371,16 @@
         const newZoomLinkInput = document.getElementById('new-zoom-link');
         const zoomLinkList = document.getElementById('zoom-link-list');
         
-
         // Day translations
         const dayTranslations = {
             all: "جميع الأيام",
+            Saturday: "السبت",
             Sunday: "الأحد",
             Monday: "الإثنين",
             Tuesday: "الثلاثاء",
             Wednesday: "الأربعاء",
             Thursday: "الخميس",
-            Friday: "الجمعة",
-            Saturday: "السبت"
+            Friday: "الجمعة"
         };
 
         // Data arrays (populated from Firestore)
@@ -417,6 +417,137 @@
             }
         }
 
+        // Parse Arabic time to minutes since midnight
+        function parseArabicTime(timeStr) {
+            // Map Arabic numerals to English
+            const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
+            const englishNumerals = '0123456789';
+            let convertedStr = timeStr;
+            for (let i = 0; i < arabicNumerals.length; i++) {
+                convertedStr = convertedStr.replace(new RegExp(arabicNumerals[i], 'g'), englishNumerals[i]);
+            }
+
+            // Split into time and AM/PM
+            const parts = convertedStr.split(' ');
+            if (parts.length !== 2) {
+                console.error('Invalid time format:', timeStr);
+                return 0; // Default to 0 to avoid breaking sorting
+            }
+            const timePart = parts[0]; // e.g., "5:30"
+            const period = parts[1];   // e.g., "صباحًا" or "مساءً"
+
+            // Parse hours and minutes
+            const timeParts = timePart.split(':');
+            if (timeParts.length !== 2) {
+                console.error('Invalid time part format:', timePart);
+                return 0;
+            }
+            const hoursStr = timeParts[0];
+            const minutesStr = timeParts[1];
+            let hours = parseInt(hoursStr, 10);
+            const minutes = parseInt(minutesStr, 10);
+
+            if (isNaN(hours) || isNaN(minutes)) {
+                console.error('Failed to parse hours or minutes:', hoursStr, minutesStr);
+                return 0;
+            }
+
+            // Adjust for AM/PM
+            if (period.includes('مساءً')) {
+                if (hours !== 12) hours += 12; // PM: Add 12 hours unless it's 12 PM
+            } else if (period.includes('صباحًا')) {
+                if (hours === 12) hours = 0;   // AM: 12 AM becomes 0 hours
+            } else {
+                console.error('Invalid period in time:', period);
+                return 0;
+            }
+
+            // Convert to minutes since midnight
+            return hours * 60 + minutes;
+        }
+
+        // Handle CSV import
+        /*document.getElementById('import-csv').addEventListener('click', async () => {
+            const fileInput = document.getElementById('csv-file');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('يرجى اختيار ملف CSV');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                const text = e.target.result;
+                const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
+
+                // Skip header row (assuming first row is Day,Topic,Teacher,Time)
+                const dataRows = rows.slice(1);
+
+                try {
+                    loadingModal.classList.remove('hidden');
+                    const sessionsSnap = await db.collection('sessions').get();
+                    let nextId = sessionsSnap.empty ? 1 : Math.max(...sessionsSnap.docs.map(doc => doc.data().id)) + 1;
+
+                    for (const row of dataRows) {
+                        if (row.length < 4) continue; // Skip incomplete rows
+
+                        const [day, topic, teacher, time] = row;
+
+                        // Validate inputs
+                        if (!day || !topic || !teacher || !time) {
+                            alert(`خطأ في السطر: ${row.join(', ')} - يرجى ملء جميع الحقول`);
+                            continue;
+                        }
+
+                        // Validate day
+                        const validDays = ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+                        if (!validDays.includes(day)) {
+                            alert(`خطأ في السطر: ${row.join(', ')} - اليوم غير صحيح`);
+                            continue;
+                        }
+
+                        // Validate teacher exists
+                        const teacherDoc = await db.collection('teachers').doc(teacher).get();
+                        if (!teacherDoc.exists) {
+                            alert(`خطأ في السطر: ${row.join(', ')} - المعلم ${teacher} غير موجود`);
+                            continue;
+                        }
+
+                        // Validate time format
+                        if (!time.match(/^[٠-٩]+:[٠-٩]+\s(صباحًا|مساءً)$/)) {
+                            alert(`خطأ في السطر: ${row.join(', ')} - الوقت غير صحيح، يجب أن يكون مثل: ٥:٣٠ صباحًا`);
+                            continue;
+                        }
+
+                        // Add session to Firestore
+                        const newSession = {
+                            id: nextId++,
+                            topic,
+                            teacher,
+                            day,
+                            time,
+                            link: zoomLinks[0]?.url || '', // Use first Zoom link as default
+                            timestamp: new Date().toISOString(),
+                            isVisible: true
+                        };
+                        await db.collection('sessions').doc(newSession.id.toString()).set(newSession);
+                        sessions.push(newSession);
+                    }
+
+                    await renderAdminSessions();
+                    alert('تم استيراد الحلقات بنجاح');
+                    fileInput.value = ''; // Reset file input
+                } catch (error) {
+                    console.error('Error importing CSV:', error);
+                    alert('فشل استيراد الملف. حاول مرة أخرى.');
+                } finally {
+                    loadingModal.classList.add('hidden');
+                }
+            };
+            reader.readAsText(file);
+        });*/
+
+
         // Render teacher dropdown
         function renderTeacherDropdown(selectElement, selectedTeacher = '') {
             selectElement.innerHTML = '<option value="">اختر معلمًا</option>';
@@ -441,6 +572,7 @@
             });
         }
 
+        // Render teacher list
         async function renderTeacherList() {
             teacherList.innerHTML = `
                 <div class="flex justify-between items-center mb-2">
@@ -449,7 +581,7 @@
                 <div id="teacher-items" class="flex flex-wrap gap-2 hidden"></div>
             `;
             const teacherItems = document.getElementById('teacher-items');
-            teachers.forEach((teacher, index) => {
+            teachers.forEach(teacher => {
                 const div = document.createElement('div');
                 div.className = 'teacher-pill flex items-center px-2 py-1 rounded-full';
                 div.innerHTML = `
@@ -458,16 +590,28 @@
                 `;
                 teacherItems.appendChild(div);
             });
+
+            // Attach delete event listeners
             document.querySelectorAll('.delete-teacher').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     const teacher = e.target.dataset.teacher;
+
+                    // Check if any sessions are using this teacher
+                    const sessionsUsingTeacher = sessions.filter(s => s.teacher === teacher);
+                    if (sessionsUsingTeacher.length > 0) {
+                        alert(`لا يمكن حذف ${teacher} لأن هناك ${sessionsUsingTeacher.length} حلقات مرتبطة به. قم بتعديل الحلقات أولاً.`);
+                        return;
+                    }
+
                     if (confirm(`هل أنت متأكد من حذف ${teacher}؟`)) {
                         try {
-                            const teacherDoc = await db.collection('teachers').where('name', '==', teacher).get();
-                            teacherDoc.forEach(doc => doc.ref.delete());
+                            // Delete the teacher document using the teacher's name as the document ID
+                            await db.collection('teachers').doc(teacher).delete();
                             teachers = teachers.filter(t => t !== teacher);
-                            renderTeacherList();
+                            await renderTeacherList();
                             renderTeacherDropdown(newTeacherSelect);
+                            // Refresh sessions to ensure dropdowns are updated
+                            await renderAdminSessions();
                         } catch (error) {
                             console.error('Error deleting teacher:', error);
                             alert('فشل حذف المعلم. حاول مرة أخرى.');
@@ -475,6 +619,7 @@
                     }
                 });
             });
+
             // Add toggle event listener
             const toggle = teacherList.querySelector('.expand-toggle');
             toggle.addEventListener('click', () => {
@@ -487,7 +632,7 @@
         // Render zoom link list
         async function renderZoomLinkList() {
             zoomLinkList.innerHTML = '';
-            zoomLinks.forEach((link, index) => {
+            zoomLinks.forEach(link => {
                 const div = document.createElement('div');
                 div.className = 'link-pill flex items-center px-2 py-1 rounded-full';
                 div.innerHTML = `
@@ -496,16 +641,27 @@
                 `;
                 zoomLinkList.appendChild(div);
             });
+
             document.querySelectorAll('.delete-zoom-link').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     const url = e.target.dataset.url;
-                    if (confirm(`هل أنت متأكد من حذف ${zoomLinks.find(l => l.url === url).label}؟`)) {
+                    const linkLabel = zoomLinks.find(l => l.url === url).label;
+
+                    // Check if any sessions are using this Zoom link
+                    const sessionsUsingLink = sessions.filter(s => s.link === url);
+                    if (sessionsUsingLink.length > 0) {
+                        alert(`لا يمكن حذف ${linkLabel} لأن هناك ${sessionsUsingLink.length} حلقات مرتبطة به. قم بتعديل الحلقات أولاً.`);
+                        return;
+                    }
+
+                    if (confirm(`هل أنت متأكد من حذف ${linkLabel}؟`)) {
                         try {
-                            const linkDoc = await db.collection('zoomLinks').where('url', '==', url).get();
-                            linkDoc.forEach(doc => doc.ref.delete());
+                            await db.collection('zoomLinks').doc(linkLabel).delete();
                             zoomLinks = zoomLinks.filter(l => l.url !== url);
-                            renderZoomLinkList();
+                            await renderZoomLinkList();
                             renderZoomLinkDropdown(newLinkSelect);
+                            // Refresh sessions to ensure dropdowns are updated
+                            await renderAdminSessions();
                         } catch (error) {
                             console.error('Error deleting zoom link:', error);
                             alert('فشل حذف الرابط. حاول مرة أخرى.');
@@ -520,8 +676,9 @@
             const adminSessionList = document.getElementById('admin-session-list');
             adminSessionList.innerHTML = '';
             let filteredSessions = currentDayFilter === 'all' ? sessions : sessions.filter(s => s.day === currentDayFilter);
-            filteredSessions.sort((a, b) => a.id - b.id);
-            filteredSessions.forEach((session, index) => {
+            // Sort sessions by meeting time
+            filteredSessions.sort((a, b) => parseArabicTime(a.time) - parseArabicTime(b.time));
+            filteredSessions.forEach(session => {
                 const card = document.createElement('div');
                 card.className = 'session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6';
                 card.dataset.id = session.id;
@@ -539,8 +696,6 @@
                             <button class="edit-session edit-button px-3 sm:px-4 py-2 text-white rounded-lg font-semibold transition grow">تعديل</button>
                             <button class="delete-session delete-button px-3 sm:px-4 py-2 text-white rounded-lg font-semibold transition grow">حذف</button>
                             <button class="toggle-visibility toggle-button px-3 sm:px-4 py-2 text-white rounded-lg font-semibold transition grow">${session.isVisible ? 'إخفاء' : 'إظهار'}</button>
-                            <button class="move-up move-button px-3 sm:px-4 py-2 text-white rounded-lg font-semibold transition ${index === 0 ? 'opacity-50 cursor-not-allowed' : ''}" ${index === 0 ? 'disabled' : ''}>↑</button>
-                            <button class="move-down move-button px-3 sm:px-4 py-2 text-white rounded-lg font-semibold transition ${index === filteredSessions.length - 1 ? 'opacity-50 cursor-not-allowed' : ''}" ${index === filteredSessions.length - 1 ? 'disabled' : ''}>↓</button>
                         </div>
                     </div>
                 `;
@@ -571,16 +726,16 @@
                             <h2 class="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">تعديل الحلقة</h2>
                             <input id="edit-topic" type="text" value="${session.topic}" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                             <select id="edit-day" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                                <option value="Saturday" ${session.day === 'Saturday' ? 'selected' : ''}>السبت</option>
                                 <option value="Sunday" ${session.day === 'Sunday' ? 'selected' : ''}>الأحد</option>
                                 <option value="Monday" ${session.day === 'Monday' ? 'selected' : ''}>الإثنين</option>
                                 <option value="Tuesday" ${session.day === 'Tuesday' ? 'selected' : ''}>الثلاثاء</option>
                                 <option value="Wednesday" ${session.day === 'Wednesday' ? 'selected' : ''}>الأربعاء</option>
                                 <option value="Thursday" ${session.day === 'Thursday' ? 'selected' : ''}>الخميس</option>
                                 <option value="Friday" ${session.day === 'Friday' ? 'selected' : ''}>الجمعة</option>
-                                <option value="Saturday" ${session.day === 'Saturday' ? 'selected' : ''}>السبت</option>
                             </select>
                             <select id="edit-teacher" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"></select>
-                            <input id="edit-time" type="text" value="${session.time}" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                            <input id="edit-time" type="text" value="${session.time}" placeholder="الوقت (مثال: ٥:٣٠ صباحًا)" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                             <select id="edit-link" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"></select>
                             <button id="save-edit" class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">حفظ</button>
                             <button id="cancel-edit" class="mt-2 w-full bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg hover:bg-gray-400 transition">إلغاء</button>
@@ -591,32 +746,50 @@
                     const editLinkSelect = document.getElementById('edit-link');
                     renderTeacherDropdown(editTeacherSelect, session.teacher);
                     renderZoomLinkDropdown(editLinkSelect, session.link);
+
                     document.getElementById('save-edit').addEventListener('click', async () => {
-                        const newTopic = document.getElementById('edit-topic').value;
+                        const newTopic = document.getElementById('edit-topic').value.trim();
                         const newDay = document.getElementById('edit-day').value;
                         const newTeacher = editTeacherSelect.value;
-                        const newTime = document.getElementById('edit-time').value;
+                        const newTime = document.getElementById('edit-time').value.trim();
                         const newLink = editLinkSelect.value;
-                        if (newTopic && newDay && newTeacher && newTime && newLink) {
-                            try {
-                                await db.collection('sessions').doc(id.toString()).update({
-                                    topic: newTopic,
-                                    day: newDay,
-                                    teacher: newTeacher,
-                                    time: newTime,
-                                    link: newLink
-                                });
-                                sessions = sessions.map(s => s.id === id ? { ...s, topic: newTopic, day: newDay, teacher: newTeacher, time: newTime, link: newLink } : s);
-                                renderAdminSessions();
-                                modal.remove();
-                            } catch (error) {
-                                console.error('Error updating session:', error);
-                                alert('فشل حفظ التعديلات. حاول مرة أخرى.');
-                            }
-                        } else {
+
+                        // Validate inputs
+                        if (!newTopic || !newDay || !newTeacher || !newTime || !newLink) {
                             alert('يرجى ملء جميع الحقول');
+                            return;
+                        }
+
+                        // Validate time format
+                        if (!newTime.match(/^[٠-٩]+:[٠-٩]+\s(صباحًا|مساءً)$/)) {
+                            alert('يرجى إدخال الوقت بالصيغة الصحيحة، مثل: ٥:٣٠ صباحًا');
+                            return;
+                        }
+
+                        // Verify that the teacher exists in the database
+                        const teacherDoc = await db.collection('teachers').doc(newTeacher).get();
+                        if (!teacherDoc.exists) {
+                            alert('المعلم المحدد غير موجود. يرجى إضافته أولاً.');
+                            return;
+                        }
+
+                        try {
+                            await db.collection('sessions').doc(id.toString()).update({
+                                topic: newTopic,
+                                day: newDay,
+                                teacher: newTeacher,
+                                time: newTime,
+                                link: newLink
+                            });
+                            sessions = sessions.map(s => s.id === id ? { ...s, topic: newTopic, day: newDay, teacher: newTeacher, time: newTime, link: newLink } : s);
+                            await renderAdminSessions();
+                            modal.remove();
+                        } catch (error) {
+                            console.error('Error updating session:', error);
+                            alert('فشل حفظ التعديلات. حاول مرة أخرى.');
                         }
                     });
+
                     document.getElementById('cancel-edit').addEventListener('click', () => modal.remove());
                 });
             });
@@ -629,7 +802,7 @@
                         try {
                             await db.collection('sessions').doc(id.toString()).delete();
                             sessions = sessions.filter(s => s.id !== id);
-                            renderAdminSessions();
+                            await renderAdminSessions();
                         } catch (error) {
                             console.error('Error deleting session:', error);
                             alert('فشل حذف الحلقة. حاول مرة أخرى.');
@@ -647,60 +820,10 @@
                     try {
                         await db.collection('sessions').doc(id.toString()).update({ isVisible: newVisibility });
                         session.isVisible = newVisibility;
-                        renderAdminSessions();
+                        await renderAdminSessions();
                     } catch (error) {
                         console.error('Error toggling visibility:', error);
                         alert('فشل تغيير حالة العرض. حاول مرة أخرى.');
-                    }
-                });
-            });
-
-            document.querySelectorAll('.move-up').forEach(button => {
-                button.addEventListener('click', async (e) => {
-                    const card = e.target.closest('.session-card');
-                    const id = parseInt(card.dataset.id);
-                    const filteredSessions = currentDayFilter === 'all' ? sessions : sessions.filter(s => s.day === currentDayFilter);
-                    const index = filteredSessions.findIndex(s => s.id === id);
-                    if (index > 0) {
-                        const prevSession = filteredSessions[index - 1];
-                        try {
-                            await db.collection('sessions').doc(id.toString()).update({ id: prevSession.id });
-                            await db.collection('sessions').doc(prevSession.id.toString()).update({ id: id });
-                            sessions = sessions.map(s => {
-                                if (s.id === id) return { ...s, id: prevSession.id };
-                                if (s.id === prevSession.id) return { ...s, id: id };
-                                return s;
-                            });
-                            renderAdminSessions();
-                        } catch (error) {
-                            console.error('Error moving session up:', error);
-                            alert('فشل نقل الحلقة. حاول مرة أخرى.');
-                        }
-                    }
-                });
-            });
-
-            document.querySelectorAll('.move-down').forEach(button => {
-                button.addEventListener('click', async (e) => {
-                    const card = e.target.closest('.session-card');
-                    const id = parseInt(card.dataset.id);
-                    const filteredSessions = currentDayFilter === 'all' ? sessions : sessions.filter(s => s.day === currentDayFilter);
-                    const index = filteredSessions.findIndex(s => s.id === id);
-                    if (index < filteredSessions.length - 1) {
-                        const nextSession = filteredSessions[index + 1];
-                        try {
-                            await db.collection('sessions').doc(id.toString()).update({ id: nextSession.id });
-                            await db.collection('sessions').doc(nextSession.id.toString()).update({ id: id });
-                            sessions = sessions.map(s => {
-                                if (s.id === id) return { ...s, id: nextSession.id };
-                                if (s.id === nextSession.id) return { ...s, id: id };
-                                return s;
-                            });
-                            renderAdminSessions();
-                        } catch (error) {
-                            console.error('Error moving session down:', error);
-                            alert('فشل نقل الحلقة. حاول مرة أخرى.');
-                        }
                     }
                 });
             });
@@ -710,17 +833,25 @@
         async function loadData() {
             try {
                 loadingModal.classList.remove('hidden');
+
+                // Load sessions
                 const sessionsSnap = await db.collection('sessions').get();
                 sessions = sessionsSnap.docs.map(doc => doc.data());
-                const teachersSnap = await db.collection('teachers').orderBy('name', 'asc').get();                teachers = teachersSnap.docs.map(doc => doc.data().name);
+
+                // Load teachers
+                const teachersSnap = await db.collection('teachers').orderBy('name', 'asc').get();
+                teachers = teachersSnap.docs.map(doc => doc.data().name);
+
+                // Load zoom links
                 const zoomLinksSnap = await db.collection('zoomLinks').get();
                 zoomLinks = zoomLinksSnap.docs.map(doc => doc.data());
+
                 await initDisplayControls();
-                renderTeacherList();
-                renderZoomLinkList();
+                await renderTeacherList();
+                await renderZoomLinkList();
                 renderTeacherDropdown(newTeacherSelect);
                 renderZoomLinkDropdown(newLinkSelect);
-                renderAdminSessions();
+                await renderAdminSessions();
             } catch (error) {
                 console.error('Error loading data:', error);
                 alert('فشل تحميل البيانات. تحقق من الاتصال.');
@@ -736,63 +867,99 @@
             const day = sessionDaySelect.value;
             const time = newTimeInput.value.trim();
             const link = newLinkSelect.value;
-            if (topic && teacher && day && time && link) {
-                try {
-                    const sessionsSnap = await db.collection('sessions').get();
-                    const newId = sessionsSnap.empty ? 1 : Math.max(...sessionsSnap.docs.map(doc => doc.data().id)) + 1;
-                    const newSession = { id: newId, topic, teacher, day, time, link, isVisible: true };
-                    await db.collection('sessions').doc(newId.toString()).set(newSession);
-                    sessions.push(newSession);
-                    renderAdminSessions();
-                    newTopicInput.value = '';
-                    newTimeInput.value = '';
-                } catch (error) {
-                    console.error('Error adding session:', error);
-                    alert('فشل إضافة الحلقة. حاول مرة أخرى.');
-                }
-            } else {
+
+            // Validate inputs
+            if (!topic || !teacher || !day || !time || !link) {
                 alert('يرجى ملء جميع الحقول');
+                return;
+            }
+
+            // Validate time format
+            if (!time.match(/^[٠-٩]+:[٠-٩]+\s(صباحًا|مساءً)$/)) {
+                alert('يرجى إدخال الوقت بالصيغة الصحيحة، مثل: ٥:٣٠ صباحًا');
+                return;
+            }
+
+            // Verify that the teacher exists in the database
+            const teacherDoc = await db.collection('teachers').doc(teacher).get();
+            if (!teacherDoc.exists) {
+                alert('المعلم المحدد غير موجود. يرجى إضافته أولاً.');
+                return;
+            }
+
+            try {
+                const sessionsSnap = await db.collection('sessions').get();
+                const newId = sessionsSnap.empty ? 1 : Math.max(...sessionsSnap.docs.map(doc => doc.data().id)) + 1;
+                const newSession = { id: newId, topic, teacher, day, time, link, timestamp: new Date().toISOString(), isVisible: true };
+                await db.collection('sessions').doc(newId.toString()).set(newSession);
+                sessions.push(newSession);
+                await renderAdminSessions();
+                newTopicInput.value = '';
+                newTimeInput.value = '';
+            } catch (error) {
+                console.error('Error adding session:', error);
+                alert('فشل إضافة الحلقة. حاول مرة أخرى.');
             }
         }
 
         // Add new teacher
         addTeacherButton.addEventListener('click', debounce(async () => {
             const newTeacher = newTeacherNameInput.value.trim();
-            if (newTeacher && !teachers.includes(newTeacher)) {
-                try {
-                    await db.collection('teachers').add({ name: newTeacher });
-                    teachers.push(newTeacher);
-                    renderTeacherList();
-                    renderTeacherDropdown(newTeacherSelect);
-                    newTeacherNameInput.value = '';
-                } catch (error) {
-                    console.error('Error adding teacher:', error);
-                    alert('فشل إضافة المعلم. حاول مرة أخرى.');
+            if (!newTeacher) {
+                alert('يرجى إدخال اسم المعلم');
+                return;
+            }
+
+            try {
+                // Check if the teacher already exists in Firestore
+                const teacherDoc = await db.collection('teachers').doc(newTeacher).get();
+                if (teacherDoc.exists) {
+                    alert('هذا المعلم موجود بالفعل');
+                    return;
                 }
-            } else {
-                alert('يرجى إدخال اسم معلم جديد وغير مكرر');
+
+                // Add the teacher with their name as the document ID
+                await db.collection('teachers').doc(newTeacher).set({ name: newTeacher });
+                teachers.push(newTeacher);
+                teachers.sort(); // Keep the list sorted
+                await renderTeacherList();
+                renderTeacherDropdown(newTeacherSelect);
+                // Refresh sessions to ensure dropdowns are updated
+                await renderAdminSessions();
+                newTeacherNameInput.value = '';
+            } catch (error) {
+                console.error('Error adding teacher:', error);
+                alert('فشل إضافة المعلم. حاول مرة أخرى.');
             }
         }, 300));
 
         // Add new zoom link
         addZoomLinkButton.addEventListener('click', debounce(async () => {
             const newLink = newZoomLinkInput.value.trim();
-            if (newLink && !zoomLinks.some(link => link.url === newLink)) {
-                try {
-                    const zoomLinksSnap = await db.collection('zoomLinks').get();
-                    const newLabel = `Zoom ${zoomLinksSnap.size + 1}`;
-                    const newZoomLink = { label: newLabel, url: newLink };
-                    await db.collection('zoomLinks').doc(newLabel).set(newZoomLink);
-                    zoomLinks.push(newZoomLink);
-                    renderZoomLinkList();
-                    renderZoomLinkDropdown(newLinkSelect);
-                    newZoomLinkInput.value = '';
-                } catch (error) {
-                    console.error('Error adding zoom link:', error);
-                    alert('فشل إضافة الرابط. حاول مرة أخرى.');
-                }
-            } else {
-                alert('يرجى إدخال رابط Zoom جديد وغير مكرر');
+            if (!newLink) {
+                alert('يرجى إدخال رابط Zoom');
+                return;
+            }
+
+            if (zoomLinks.some(link => link.url === newLink)) {
+                alert('هذا الرابط موجود بالفعل');
+                return;
+            }
+
+            try {
+                const zoomLinksSnap = await db.collection('zoomLinks').get();
+                const newLabel = `Zoom ${zoomLinksSnap.size + 1}`;
+                const newZoomLink = { label: newLabel, url: newLink };
+                await db.collection('zoomLinks').doc(newLabel).set(newZoomLink);
+                zoomLinks.push(newZoomLink);
+                await renderZoomLinkList();
+                renderZoomLinkDropdown(newLinkSelect);
+                // Refresh sessions to ensure dropdowns are updated
+                await renderAdminSessions();
+                newZoomLinkInput.value = '';
+            } catch (error) {
+                console.error('Error adding zoom link:', error);
+                alert('فشل إضافة الرابط. حاول مرة أخرى.');
             }
         }, 300));
 
