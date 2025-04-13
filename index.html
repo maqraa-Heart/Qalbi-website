@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta property="og:title" content="الدروس والمحاضرات العلمية - الجلسات المباشرة" />
+    <meta property="og:description" content="جدول الدروس والمحاضرات العلمية اليومية. انضم إلى جلسات Zoom مباشرة مع نخبة من المعلمين." />
+    <meta property="og:image" content="https://via.placeholder.com/1200x630?text=Scientific+Sessions" />
+    <meta property="og:url" content="https://example.com/sessions" />
+    <meta property="og:type" content="website" />
+    <title>الدروس والمحاضرات العلمية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Cairo', sans-serif;
+            direction: rtl;
+            text-align: right;
+            background: linear-gradient(to bottom, #1e3a8a, #3b82f6);
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        .session-card {
+            transition: transform 0.2s ease;
+            background: linear-gradient(135deg, #ffffff, #f3f4f6);
+        }
+        .session-card:hover {
+            transform: scale(1.02);
+        }
+        header {
+            background: linear-gradient(to right, #2563eb, #1e40af);
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('https://www.transparenttextures.com/patterns/arabesque.png');
+            opacity: 0.2;
+        }
+        .join-button {
+            background: linear-gradient(to right, #16a34a, #22c55e);
+            min-height: 48px;
+            font-size: 1.1rem;
+        }
+        .join-button:hover {
+            background: linear-gradient(to right, #15803d, #16a34a);
+        }
+        .admin-icon {
+            background: linear-gradient(to right, #eab308, #facc15);
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s ease;
+            margin-left: auto;
+            margin-bottom: 1rem;
+        }
+        .admin-icon:hover {
+            background: linear-gradient(to right, #ca8a04, #eab308);
+            transform: scale(1.1);
+        }
+        @media (max-width: 640px) {
+            .container {
+                margin: 0.5rem;
+                padding: 0.5rem;
+            }
+            header {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 1.5rem;
+            }
+            .text-lg {
+                font-size: 1rem;
+            }
+            .text-base {
+                font-size: 0.9rem;
+            }
+            .session-card {
+                margin: 0.5rem;
+                padding: 1rem;
+            }
+            .join-button {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="main-page" class="container max-w-full sm:max-w-4xl mx-auto p-2 sm:p-8 mt-2 sm:mt-8 mb-8">
+        <!-- Admin Icon at Top -->
+        <div class="flex justify-start mb-4">
+            <a href="admin.html" class="admin-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+            </a>
+        </div>
+
+        <header class="text-center mb-6 sm:mb-12 p-4 sm:p-8 text-white rounded-xl relative">
+            <p class="text-base sm:text-xl font-semibold">السلام عليكم ورحمة الله وبركاته</p>
+            <h1 class="text-2xl sm:text-4xl font-bold mb-2 sm:mb-3">الدروس والمحاضرات العلمية (المباشرة)</h1>
+            <p id="display-day" class="text-base sm:text-xl"></p>
+            <p class="text-sm sm:text-lg mt-2 sm:mt-3">🌏 جميع الحلقات توقيت مكة 🕋</p>
+        </header>
+
+        <div id="loading" class="text-center text-white text-lg mb-4 hidden">جارٍ التحميل...</div>
+        <div id="session-list"></div>
+
+        <footer class="text-center mt-6 sm:mt-12 text-white text-sm">
+            <p>© 2025 أكاديمية العلوم الشرعية. جميع الحقوق محفوظة.</p>
+        </footer>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script>
+        // Initialize Firebase
+        try {
+            firebase.initializeApp({
+                apiKey: "AIzaSyBDZkbdne40pGrojH1T6Sasnt2AH_Aclbc",
+                authDomain: "maqraa-heart.firebaseapp.com",
+                projectId: "maqraa-heart",
+                storageBucket: "maqraa-heart.firebasestorage.app",
+                messagingSenderId: "547668365813",
+                appId: "1:547668365813:web:36d54ad62bbc61ef8410bc"
+            });
+        } catch (error) {
+            console.error('Firebase initialization failed:', error);
+            document.getElementById('session-list').innerHTML = '<p class="text-center text-red-600">خطأ في الاتصال بالخادم. حاول لاحقًا.</p>';
+        }
+
+        const db = firebase.firestore();
+
+        // Day translations
+        const dayTranslations = {
+            all: "جميع الأيام",
+            Sunday: "الأحد",
+            Monday: "الإثنين",
+            Tuesday: "الثلاثاء",
+            Wednesday: "الأربعاء",
+            Thursday: "الخميس",
+            Friday: "الجمعة",
+            Saturday: "السبت"
+        };
+
+        // Render main page sessions
+        async function renderMainSessions() {
+            const sessionList = document.getElementById('session-list');
+            const displayDayElement = document.getElementById('display-day');
+            const loadingElement = document.getElementById('loading');
+            sessionList.innerHTML = '';
+            loadingElement.classList.remove('hidden');
+
+            try {
+                // Fetch sessions
+                const sessionsSnap = await db.collection('sessions').get();
+                const sessions = sessionsSnap.docs.map(doc => doc.data());
+
+                // Fetch settings
+                const settingsSnap = await db.collection('settings').doc('display').get();
+                const settings = settingsSnap.exists ? settingsSnap.data() : { displayedDay: 'all', displayedDate: '' };
+
+                // Set display date
+                displayDayElement.textContent = settings.displayedDate || 'لم يتم تحديد التاريخ';
+
+                // Filter sessions
+                let filteredSessions = sessions.filter(session => session.isVisible);
+                if (settings.displayedDay && settings.displayedDay !== 'all') {
+                    filteredSessions = filteredSessions.filter(session => session.day === settings.displayedDay);
+                }
+
+                // Sort sessions by ID to maintain order
+                filteredSessions.sort((a, b) => a.id - b.id);
+
+                // Intersection observer for animation
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const card = entry.target;
+                            card.style.opacity = 1;
+                            observer.unobserve(card);
+                        }
+                    });
+                }, { threshold: 0.1 });
+
+                // Render session cards
+                filteredSessions.forEach(session => {
+                    const card = document.createElement('div');
+                    card.className = 'session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6 opacity-0';
+                    card.dataset.id = session.id;
+                    card.innerHTML = `
+                        <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">📖 ${session.topic}</h2>
+                        <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">🎙 ${session.teacher}</p>
+                        <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">📅 ${dayTranslations[session.day]}</p>
+                        <p class="text-gray-800 mb-2 sm:mb-2 text-base sm:text-lg">🕒 ${session.time}</p>
+                        <a href="${session.link}" target="_blank" class="join-button inline-block mt-2 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full text-center">انضم إلى الحلقة</a>
+                    `;
+                    sessionList.appendChild(card);
+                    observer.observe(card);
+                });
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                sessionList.innerHTML = '<p class="text-center text-red-600">فشل تحميل البيانات. حاول مرة أخرى.</p>';
+            } finally {
+                loadingElement.classList.add('hidden');
+            }
+        }
+
+        // Initial render
+        renderMainSessions();
+    </script>
+</body>
+</html>
