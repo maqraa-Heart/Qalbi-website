@@ -88,7 +88,17 @@
         #session-list {
             min-height: 200px; /* Ensure container takes space */
         }
-        
+        .time-day-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .inline-photo {
+            width: 32px; /* Match the favicon size (favicon-32x32.png) */
+            height: 32px;
+            display: inline-block; /* Ensure the image is treated as inline */
+            vertical-align: middle; /* Align with the text */
+        }
         @keyframes pulse {
             50% { opacity: 0.5; }
         }
@@ -109,6 +119,7 @@
             }
 
             .header-title {
+
                 font-size: 1.5rem;
                 line-height: 1;
                 margin: 0 0.25rem;
@@ -176,7 +187,7 @@
 
             /* Hijri Date Display */
             #hijri-date {
-                font-size: 1rem !important;
+                font-size: 0.9rem !important;
                 margin-top: 0.25rem;
             }
 
@@ -231,7 +242,9 @@
                     <p class="text-sm sm:text-base font-semibold mb-1 text-teal-200">السلام عليكم ورحمة الله وبركاته</p>
                     <h1 class="header-title text-2xl sm:text-4xl font-bold mb-2 leading-tight" style="font-family: 'Noto Sans Arabic', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                         جدول محاضرات ليطمئن قلبي
+                        <img src="favicon/favicon-32x32.png" alt="Small icon" class="inline-photo">
                     </h1>
+                    
                     <p class="header-subtitle text-base sm:text-lg font-medium text-teal-100"> الدروس العلمية المباشرة علي برنامج زووم   <i class="fas fa-video"></i></p>
                 </div>
         
@@ -448,8 +461,11 @@
                         <svg class="w-5 h-5 ml-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                         </svg>
-                        <span class="text-base font-bold sm:text-lg">${dayTranslations[session.day]}  •&emsp;&emsp;&emsp;&emsp; 🕒 ${displayTime} •</span>
-                </div>
+                        <div class="time-day-container w-full">
+                            <span class="text-base font-bold sm:text-lg">${dayTranslations[session.day]} •</span>
+                            <span class="text-base font-bold sm:text-lg">🕒 ${displayTime} •</span>
+                        </div>
+                    </div>
                 </div>
 
 
