@@ -48,14 +48,13 @@
         }
 
         .join-now-button {
-            margin-top: 1rem;
             width: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            padding-top: 0.75rem;
-            padding-bottom: 0.75rem;
+            padding: 0 0.75rem; /* Remove vertical padding; use height to control size */
+            height: 3rem; /* Fixed height for consistency */
             background: linear-gradient(to right, #14b8a6, #0d9488); /* from-teal-500 to-teal-600 */
             color: white;
             border-radius: 0.5rem; /* rounded-lg */
@@ -98,6 +97,72 @@
             height: 32px;
             display: inline-block; /* Ensure the image is treated as inline */
             vertical-align: middle; /* Align with the text */
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-right: 8px; /* Space between the badge and the topic */
+        }
+
+        .status-running {
+            background-color: #d4edda; /* Light green */
+            color: #155724; /* Dark green text */
+        }
+
+        .status-waiting {
+            background-color: #cce5ff; /* Light blue */
+            color: #004085; /* Dark blue text */
+        }
+
+        .status-finished {
+            background-color: #e2e3e5; /* Light gray */
+            color: #383d41; /* Dark gray text */
+        }
+        .button-container {
+            display: flex;
+            align-items: stretch; /* Ensure both buttons stretch to the same height */
+            gap: 0.5rem; /* Space between the buttons */
+        }
+
+        .share-button {
+            padding: 0 0.5rem; /* Smaller horizontal padding for narrower width; no vertical padding */
+            height: 3rem; /* Match the height of join-now-button */
+            background: linear-gradient(to right, #3b82f6, #2563eb); /* Blue gradient (from-blue-500 to-blue-600) */
+            color: white;
+            border-radius: 0.5rem;
+            font-size: 0.875rem; /* Smaller font size for text */
+            font-weight: 600;
+            transition: all 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            line-height: 1; /* Prevent font-size from affecting height */
+        }
+
+        .share-button:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to right, #3b82f6, #1d4ed8); /* Slightly darker on hover */
+        }
+
+        .share-feedback {
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #d1fae5; /* Light green */
+            color: #065f46; /* Dark green text */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .share-feedback.show {
+            opacity: 1;
         }
         @keyframes pulse {
             50% { opacity: 0.5; }
@@ -168,6 +233,13 @@
             .join-now-button {
                 font-size: 0.875rem;
                 padding: 0.75rem;
+                height: 2.5rem; /* Slightly smaller height on mobile */
+                gap: 0.25rem;
+            }
+            .share-button {
+                font-size: 0.75rem; /* Even smaller font on mobile */
+                padding: 0 0.5rem;
+                height: 2.5rem; /* Match the adjusted height on mobile */
                 gap: 0.25rem;
             }
 
@@ -247,7 +319,7 @@
                     
                     <p class="header-subtitle text-base sm:text-lg font-medium text-teal-100"> الدروس العلمية المباشرة علي برنامج زووم   <i class="fas fa-video"></i></p>
                 </div>
-        
+
                 <!-- Admin Button (Right) -->
                 <a href="admin.html" class="p-2 rounded-full bg-white/20 hover:bg-white/30 transition">
                     <svg class="w-6 h-6 sm:w-7 sm:h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -261,9 +333,11 @@
                 <p id="display-day" class="text-lg sm:text-xl font-semibold text-teal-100"></p>
                 <p class="date-time-text sm:text-xl font-medium text-white" id="hijri-date"></p>
             </div>
+
             <div>
                 <p class="text-sm sm:text-base text-teal-200 mb-1">جميع الحلقات توقيت مكة المكرمة 🕋</p>
                 <p class="time-display text-xl sm:text-2xl font-bold text-white" id="current-time">--:--</p>
+                <!-- WhatsApp Button (Right, next to Admin) -->
             </div>
         </header>
 
@@ -442,11 +516,40 @@
                 displayTime = `${displayHours}:${displayMinutes} ${displayPeriod}`;
             }
 
+                // Calculate session status based on current time in Mecca
+                const currentTime = new Date().toLocaleTimeString('ar-EG', { timeZone: 'Asia/Riyadh' });
+                const splitedParts = currentTime.split(' ');
+                const splitedTimeParts = splitedParts[0].split(':');
+                let period2 = splitedParts[1];
+                if (period2.includes('ص')) {
+                    period2 = 'صباحًا';
+                } else if (period.includes('م')) {
+                    period2 = 'مساءً';
+                }
+                const currentTimeInMinutes = parseArabicTime(`${splitedTimeParts[0]}:${splitedTimeParts[1]} ${period2}`);
+                const sessionDuration = 120; // Assume each session lasts 1 hour (60 minutes)
+                let statusClass, statusText;
+
+                if (currentTimeInMinutes >= sessionTimeInMinutes && currentTimeInMinutes < sessionTimeInMinutes + sessionDuration) {
+                    statusClass = 'status-running';
+                    statusText = 'جارية الآن';
+                } else if (currentTimeInMinutes < sessionTimeInMinutes) {
+                    statusClass = 'status-waiting';
+                    statusText = 'في الانتظار';
+                } else {
+                    statusClass = 'status-finished';
+                    statusText = 'انتهت';
+                }
+
+              // Unique ID for the share button to handle feedback
+                const shareButtonId = `share-btn-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`;
             return `
             <div class="session-card p-6 space-y-3 sm:space-y-4 rounded-xl fade-in">
                 <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xl sm:text-2xl font-bold text-blue-800 mb-2 leading-tight">
-                        <span class="text-blue-600">📚 </span>${session.topic}
+                     <h2 class="text-xl sm:text-2xl font-bold text-blue-800 mb-2 leading-tight">
+                        <span class="text-blue-600">📚 </span>
+                        ${session.topic}
+                        <span class="status-badge ${statusClass}">${statusText}</span>
                     </h2>
                 </div>
                 
@@ -468,14 +571,46 @@
                     </div>
                 </div>
 
+                <div class="button-container relative">
+                    <a href="${session.link}" target="_blank" class="join-now-button">
+                        انضم إلى الحلقة
+                        <i class="fas fa-video"></i>
+                    </a>
+                    <button id="${shareButtonId}" class="share-button" onclick="shareSessionLink('${session.link}', '${shareButtonId}')">
+                        مشاركة
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                    <span class="share-feedback" id="feedback-${shareButtonId}">تم النسخ إلى الحافظة</span>
+                </div>
 
-                <a href="${session.link}" target="_blank" class="join-now-button">
-                    انضم إلى الحلقة
-                    <i class="fas fa-video"></i>
-                </a>
             </div>`;
         }
+        // Share session link using Web Share API or clipboard fallback
+        function shareSessionLink(link, buttonId) {
+            const feedbackElement = document.getElementById(`feedback-${buttonId}`);
 
+            // Try Web Share API (works on mobile devices)
+            if (navigator.share) {
+                navigator.share({
+                    title: 'حلقة دراسية - مقرأة ليطمئن قلبي',
+                    text: 'انضم إلى هذه الحلقة المباشرة على Zoom:',
+                    url: link
+                }).catch(error => {
+                    console.error('Error sharing:', error);
+                });
+            } else {
+                // Fallback: Copy to clipboard for non-supporting devices (e.g., desktop)
+                navigator.clipboard.writeText(link).then(() => {
+                    feedbackElement.classList.add('show');
+                    setTimeout(() => {
+                        feedbackElement.classList.remove('show');
+                    }, 2000); // Hide feedback after 2 seconds
+                }).catch(error => {
+                    console.error('Error copying to clipboard:', error);
+                    alert('فشل نسخ الرابط. يرجى نسخه يدويًا.');
+                });
+            }
+        }
         // Real-time Updates
         function setupRealtime() {
             db.collection('sessions').onSnapshot(snapshot => {
@@ -496,6 +631,9 @@
                 console.error('Settings update failed:', error);
                 showError('فشل تحميل الإعدادات');
             });
+
+            // Re-render sessions every minute to update status
+            setInterval(renderSessions, 60000);
         }
 
         // Render Sessions
