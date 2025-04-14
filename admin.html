@@ -230,14 +230,14 @@
 
         <!-- Display Date Control -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">تحديد تاريخ العرض</h2>
+            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">كتابة تاريخ اليوم للصفحة الرئيسية</h2>
             <input id="display-date-control" type="text" placeholder="أدخل نص التاريخ (مثال: السبت - ٨ رمضان ١٤٤٦)" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
         </div>
 
         <!-- Main Page Display Control -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">التحكم في العرض الرئيسي</h2>
-            <label for="display-day-control" class="block text-base sm:text-lg text-gray-800 mb-2">اختر اليوم المعروض في الصفحة الرئيسية:</label>
+            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">التحكم في اليوم المعروض للاخوات</h2>
+            <label for="display-day-control" class="block text-base sm:text-lg text-gray-800 mb-2">اختر اليوم للعرض في الصفحة الرئيسية:</label>
             <select id="display-day-control" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                 <option value="all">جميع الأيام</option>
                 <option value="Saturday">السبت</option>
@@ -252,7 +252,7 @@
 
         <!-- Manage Zoom Links -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">إدارة روابط Zoom</h2>
+            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">اضافة روابط Zoom جديدة </h2>
             <div class="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
                 <input id="new-zoom-link" type="text" placeholder="رابط Zoom الجديد" class="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                 <button id="add-zoom-link" class="admin-button px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition">إضافة</button>
@@ -262,7 +262,7 @@
 
         <!-- Manage Teachers -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
-            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">إدارة المعلمين</h2>
+            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">اضافة معلم جديد</h2>
             <div class="flex flex-col sm:flex-row gap-2 mb-3 sm:mb-4">
                 <input id="new-teacher-name" type="text" placeholder="اسم المعلم الجديد" class="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
                 <button id="add-teacher" class="admin-button px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition">إضافة</button>
@@ -576,7 +576,7 @@
         async function renderTeacherList() {
             teacherList.innerHTML = `
                 <div class="flex justify-between items-center mb-2">
-                    <span class="expand-toggle text-base sm:text-2xl cursor-pointer text-blue-600"> ▼ 👉 </span> 
+                    <span class="expand2-toggle text-base sm:text-2xl cursor-pointer text-blue-600">▼</span> <span class="text-base sm:text-2l cursor-pointer"> 👉عرض الاسماء </span> 
                 </div>
                 <div id="teacher-items" class="flex flex-wrap gap-2 hidden"></div>
             `;
@@ -621,11 +621,11 @@
             });
 
             // Add toggle event listener
-            const toggle = teacherList.querySelector('.expand-toggle');
+            const toggle = teacherList.querySelector('.expand2-toggle');
             toggle.addEventListener('click', () => {
                 const items = document.getElementById('teacher-items');
                 items.classList.toggle('hidden');
-                toggle.textContent = items.classList.contains('hidden') ? '▼ 👉 ' : '▲ 👉 ';
+                toggle.textContent = items.classList.contains('hidden') ? '▼' : '▲';
             });
         }
 
