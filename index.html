@@ -378,6 +378,57 @@
             const daysOld = Math.floor((now - sessionDate) / (1000 * 60 * 60 * 24));
             const isNew = daysOld <= 7;
 
+            // Convert session time to minutes since midnight for comparison
+            const sessionTimeInMinutes = parseArabicTime(session.time);
+
+            // Convert Arabic numerals to English for processing
+            const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
+            const englishNumerals = '0123456789';
+            let convertedTime = session.time;
+            for (let i = 0; i < arabicNumerals.length; i++) {
+                convertedTime = convertedTime.replace(new RegExp(arabicNumerals[i], 'g'), englishNumerals[i]);
+            }
+
+            // Split the time into parts (e.g., "5:00 صباحًا" -> ["5:00", "صباحًا"])
+            const parts = convertedTime.split(' ');
+            const timePart = parts[0]; // e.g., "5:00"
+            const period = parts[1];   // e.g., "صباحًا"
+            const timeParts = timePart.split(':'); // e.g., ["5", "00"]
+            const minutes = timeParts[1]; // e.g., "00"
+
+            // Define time ranges in minutes since midnight
+            const noonStart = 12 * 60;      // 12:00 PM = 720 minutes
+            const noonEnd = 15 * 60;        // 3:00 PM = 900 minutes
+            const afternoonEnd = 17 * 60;   // 5:00 PM = 1020 minutes
+
+            // Adjust the display of the period based on the conditions
+            let displayPeriod = period;
+            if (sessionTimeInMinutes >= noonStart && sessionTimeInMinutes < noonEnd) {
+                // Between 12:00 PM and 3:00 PM, replace "مساءً" with "ظهراً"
+                displayPeriod = period.replace('مساءً', 'ظهراً');
+            } else if (sessionTimeInMinutes >= noonEnd && sessionTimeInMinutes < afternoonEnd) {
+                // Between 3:00 PM and 5:00 PM, replace "مساءً" with "عصراً"
+                displayPeriod = period.replace('مساءً', 'عصراً');
+            }
+
+            // Convert back to Arabic numerals for display
+            let displayHours = timeParts[0];
+            for (let i = 0; i < englishNumerals.length; i++) {
+                displayHours = displayHours.replace(new RegExp(englishNumerals[i], 'g'), arabicNumerals[i]);
+            }
+
+            // If minutes are "00", display only the hours; otherwise, include minutes
+            let displayTime;
+            if (minutes === '00') {
+                displayTime = `${displayHours}  ${displayPeriod}`;
+            } else {
+                let displayMinutes = minutes;
+                for (let i = 0; i < englishNumerals.length; i++) {
+                    displayMinutes = displayMinutes.replace(new RegExp(englishNumerals[i], 'g'), arabicNumerals[i]);
+                }
+                displayTime = `${displayHours}:${displayMinutes} ${displayPeriod}`;
+            }
+
             return `
             <div class="session-card p-6 space-y-3 sm:space-y-4 rounded-xl fade-in">
                 <div class="flex items-center justify-between mb-4">
@@ -392,12 +443,15 @@
                     </svg>
                     <span class="text-base font-bold sm:text-xl">${session.teacher}</span>
                 </div>
-                <div class="flex items-center text-gray-600">
-                    <svg class="w-5 h-5 ml-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                    </svg>
-                    <span class="text-base font-bold sm:text-lg">${dayTranslations[session.day]}  •  🕒 ${session.time}</span>
+                <div class="bg-white/70 p-3 rounded-xl mb-3">
+                    <div class="flex items-center text-gray-600">
+                        <svg class="w-5 h-5 ml-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                        </svg>
+                        <span class="text-base font-bold sm:text-lg">${dayTranslations[session.day]}  •&emsp;&emsp;&emsp;&emsp; 🕒 ${displayTime} •</span>
                 </div>
+                </div>
+
 
                 <a href="${session.link}" target="_blank" class="join-now-button">
                     انضم إلى الحلقة
