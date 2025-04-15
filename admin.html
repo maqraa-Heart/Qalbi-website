@@ -690,8 +690,7 @@
 
         // Copy reminder template to clipboard
         function copyReminder(session, buttonId) {
-            const reminderTemplate = `تذكير🔊\n\nاليوم: ${dayTranslations[session.day]}📜\n\n${session.topic}📚\n\n${session.teacher}🎙\n\n🕋 بتوقيت مكه  ( ${session.time} ) : التوقيت 🕗\n\nالمنصة: عبر تطبيق زووم💻 \n\n🔗\n${session.link}`;
-            
+            const reminderTemplate = `🔊 تذكير\n\n📜 اليوم: ${dayTranslations[session.day]}\n\n📚 ${session.topic}\n\n🎙 ${session.teacher}\n\n🕗 التوقيت: ( ${session.time} ) بتوقيت مكة 🕋\n\n💻 المنصة: عبر تطبيق زووم\n\n🔗\n${session.link}`;            
             const feedbackElement = document.getElementById(`reminder-feedback-${buttonId}`);
 
             // Copy to clipboard
