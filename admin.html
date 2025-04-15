@@ -60,14 +60,6 @@
             background: url('https://www.transparenttextures.com/patterns/arabesque.png');
             opacity: 0.2;
         }
-        .join-button {
-            background: linear-gradient(to right, #16a34a, #22c55e);
-            min-height: 48px;
-            font-size: 1.1rem;
-        }
-        .join-button:hover {
-            background: linear-gradient(to right, #15803d, #16a34a);
-        }
         .admin-button {
             background: linear-gradient(to right, #eab308, #facc15);
             min-height: 48px;
@@ -158,6 +150,31 @@
         .back-button:hover {
             background: linear-gradient(to right, #ca8a04, #eab308);
             transform: scale(1.1);
+        }
+
+        .reminder-button {
+            background: linear-gradient(to right, #8b5cf6, #a78bfa); /* Purple gradient */
+            min-height: 48px;
+            font-size: 1.1rem;
+        }
+        .reminder-button:hover {
+            background: linear-gradient(to right, #7c3aed, #8b5cf6);
+        }
+        .reminder-feedback {
+            position: absolute;
+            top: -2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #d1fae5; /* Light green */
+            color: #065f46; /* Dark green text */
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .reminder-feedback.show {
+            opacity: 1;
         }
         @media (max-width: 640px) {
             .container {
@@ -671,6 +688,23 @@
             });
         }
 
+        // Copy reminder template to clipboard
+        function copyReminder(session, buttonId) {
+            const reminderTemplate = `تذكير🔊\n\nاليوم: ${dayTranslations[session.day]}📜\n\n${session.topic}📚\n\n${session.teacher}🎙\n\n🕋 بتوقيت مكه  ( ${session.time} ) : التوقيت 🕗\n\nالمنصة: عبر تطبيق زووم💻 \n\n🔗\n${session.link}`;
+            
+            const feedbackElement = document.getElementById(`reminder-feedback-${buttonId}`);
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(reminderTemplate).then(() => {
+                feedbackElement.classList.add('show');
+                setTimeout(() => {
+                    feedbackElement.classList.remove('show');
+                }, 2000); // Hide feedback after 2 seconds
+            }).catch(error => {
+                console.error('Error copying to clipboard:', error);
+                alert('فشل نسخ النص. يرجى نسخه يدويًا.');
+            });
+        }
         // Render admin sessions
         async function renderAdminSessions() {
             const adminSessionList = document.getElementById('admin-session-list');
@@ -682,16 +716,21 @@
                 const card = document.createElement('div');
                 card.className = 'session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6';
                 card.dataset.id = session.id;
+                // Unique ID for the reminder button to handle feedback
+                const reminderButtonId = `reminder-btn-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`;
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
                         <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">📖 ${session.topic}</h2>
-                        <span class="expand-toggle text-sm sm:text-base">+</span>
+                        <span class="expand-toggle text-sm sm:text-base" style="font-size: 2rem;">✏️</span>
                     </div>
                     <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">🎙 ${session.teacher}</p>
                     <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">🕒 ${session.time}</p>
                     <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">📅 ${dayTranslations[session.day]}</p>
                     <div class="session-details hidden">
-                        <a href="${session.link}" target="_blank" class="join-button inline-block mt-2 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full text-center">انضم إلى الحلقة</a>
+                         <div class="relative">
+                            <button id="${reminderButtonId}" class="reminder-button inline-block mt-2 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full text-center" onclick='copyReminder(${JSON.stringify(session)}, "${reminderButtonId}")'>تذكير</button>
+                            <span class="reminder-feedback" id="reminder-feedback-${reminderButtonId}">تم النسخ إلى الحافظة</span>
+                        </div>
                         <div class="mt-3 sm:mt-4 flex flex-wrap gap-2">
                             <button class="edit-session edit-button px-3 sm:px-4 py-2 text-white rounded-lg font-semibold transition grow">تعديل</button>
                             <button class="delete-session delete-button px-3 sm:px-4 py-2 text-white rounded-lg font-semibold transition grow">حذف</button>
@@ -710,7 +749,7 @@
                 toggle.addEventListener('click', (e) => {
                     const details = e.target.closest('.session-card').querySelector('.session-details');
                     details.classList.toggle('hidden');
-                    e.target.textContent = details.classList.contains('hidden') ? '+' : '−';
+                    e.target.textContent = details.classList.contains('hidden') ? '✏️' : '−';
                 });
             });
 

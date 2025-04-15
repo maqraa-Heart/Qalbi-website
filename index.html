@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
-    <meta property="og:title" content="الدروس والمحاضرات العلمية - الحلقات المباشرة">
-    <meta property="og:description" content="جدول الدروس والمحاضرات العلمية اليومية. انضم إلى حلقات Zoom مباشرة مع نخبة من المعلمين.">
+    <meta property="og:title" content="جدول محاضرات مقرأة ليطمئن قلبي">
+    <meta property="og:description" content="جدول الدروس والمحاضرات العلمية اليومية. انضم إلى حلقات Zoom مباشرة مع نخبة من المعلمات.">
     <meta property="og:image" content="https://maqraa-heart.web.app/fav.jpg">
     <meta property="og:url" content="https://maqraa-heart.github.io/Qalbi-website/">
     <meta property="og:type" content="website">
@@ -459,10 +459,6 @@
 
         // Enhanced Session Card Template
         function createSessionCard(session) {
-            const now = new Date();
-            const sessionDate = session.timestamp ? new Date(session.timestamp) : now;
-            const daysOld = Math.floor((now - sessionDate) / (1000 * 60 * 60 * 24));
-            const isNew = daysOld <= 7;
 
             // Convert session time to minutes since midnight for comparison
             const sessionTimeInMinutes = parseArabicTime(session.time);
