@@ -22,7 +22,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap" rel="stylesheet">
 
     <style>
@@ -119,16 +118,12 @@
 
         /* Button Styles */
         .refresh-btn {
-            padding: 0.5rem;
-            border-radius: 99px;
-            border-color: #14b8a6;
-            border-width: 0px;
-            background-color: rgba(255, 255, 255, 0.2);
+            border: 0;
+            background-color: rgba(255, 255, 255, 0);
         }
 
-        .refresh-icon {
-            color: white;
-            font-size: 1.125rem;
+        .refresh-btn p{
+            font-size: 1.75rem;
         }
 
         .admin-btn {
@@ -756,7 +751,7 @@
             <div class="header-container">
                 <!-- Refresh Button -->
                 <button id="refresh-btn" class="refresh-btn" aria-label="تحديث جدول الحلقات">
-                    <i class="fas fa-sync-alt refresh-icon"></i>
+                    <p>🔄</p>
                 </button>
                 <!-- Title Group -->
                 <div class="title-group">
@@ -1098,16 +1093,16 @@
                 </div>
                 <div class="button-container">
                     <a href="${session.link}" target="_self" class="join-now-button" aria-label="الانضمام إلى حلقة ${session.topic}">
-                        انضم إلى الحلقة
-                        <i class="fas fa-video"></i>
+                        انضم إلى الحلقة  
+                            ▶
                     </a>
                     <button id="${shareButtonId}" class="share-button" onclick="shareSessionLink('${session.link}', '${shareButtonId}')" aria-label="مشاركة رابط حلقة ${session.topic}">
                         مشاركة
-                        <i class="fas fa-share-alt"></i>
+                        🔗
                     </button>
                     <button id="${reminderButtonId}" class="reminder-button" onclick="scheduleSingleSessionReminder({topic: '${session.topic}', time: '${session.time}'})" aria-label="تذكير بحلقة ${session.topic}">
                         تذكير
-                        <i class="fas fa-bell"></i>
+                        🔔
                     </button>
                     <span class="share-feedback" id="feedback-${shareButtonId}">تم النسخ إلى الحافظة</span>
                     <span class="share-feedback" id="reminder-feedback-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}">تم جدولة التذكير</span>
