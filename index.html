@@ -81,21 +81,35 @@
             z-index: 100;
         }
 
-        /* Reminder Modal */
-        .reminder-modal {
-            position: fixed;
-            bottom: 1rem;
-            right: 1rem;
-            background: var(--card-bg);
-            padding: 1rem;
-            border-radius: 1rem;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            max-width: 300px;
-            display: none;
-            z-index: 1000;
-            font-size: 0.9rem;
-            border: 2px solid var(--accent-teal);
-            animation: slideIn 0.3s ease-out;
+        /* Reminder Button Styles */
+        .reminder-button {
+            padding: 0 0.5rem;
+            height: 3rem;
+            background: linear-gradient(to right, #f59e0b, #d97706);
+            color: white;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: all 0.1s ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            line-height: 1;
+            border: none;
+        }
+
+        .reminder-button:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(to right, #f59e0b, #b45309);
+        }
+        /* Mobile adjustments for reminder button */
+        @media (max-width: 640px) {
+            .reminder-button {
+                font-size: 0.75rem;
+                padding: 0 0.5rem;
+                height: 2.5rem;
+                gap: 0.25rem;
+            }
         }
 
         @keyframes slideIn {
@@ -735,11 +749,6 @@
         <i class="fas fa-moon"></i>
     </button>
 
-    <!-- Reminder Modal -->
-    <div class="reminder-modal" id="reminder-modal">
-        <p class="text-sm font-semibold" id="reminder-text"></p>
-    </div>
-
     <!-- Main Container -->
     <div class="glass-container" id="main-content" style="display: none;">
         <!-- Header Section -->
@@ -925,25 +934,66 @@
                     if (reminderTime > now) {
                         const timeout = reminderTime - now;
                         setTimeout(() => {
-                            showReminder(session, minutes);
+                            showReminder(session, minutes, true); // Pass true for modal
                         }, timeout);
                     }
                 });
             });
         }
 
-        function showReminder(session, minutes) {
-            const modal = document.getElementById('reminder-modal');
-            const text = document.getElementById('reminder-text');
-            // Add close button
-            text.innerHTML = `
-                ⏰ تذكير: جلسة ${session.topic} ستبدأ خلال ${minutes} دقيقة
-                <button onclick="this.parentElement.parentElement.style.display='none'" 
-                        style="margin-right:10px; background:transparent; border:none; color:inherit">
-                    ✕
-                </button>
-            `;
-            modal.style.display = 'block';
+        function scheduleSingleSessionReminder(session) {
+            if (Notification.permission !== 'granted') {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        setupReminderForSession(session);
+                    } else {
+                        alert('تم رفض إذن الإشعارات. لا يمكن جدولة التذكير.');
+                    }
+                });
+            } else {
+                setupReminderForSession(session);
+            }
+        }
+
+        function setupReminderForSession(session) {
+            const sessionTime = parseArabicTime(session.time);
+            const now = Date.now();
+
+            [30, 15].forEach(minutes => {
+                const reminderTime = sessionTime - (minutes * 60 * 1000);
+                if (reminderTime > now) {
+                    const timeout = reminderTime - now;
+                    setTimeout(() => {
+                        showReminder(session, minutes, false); // Pass false for no modal
+                    }, timeout);
+                }
+            });
+
+            // Show feedback to user
+            const feedbackElement = document.getElementById(`reminder-feedback-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`);
+            feedbackElement.classList.add('show');
+            setTimeout(() => {
+                feedbackElement.classList.remove('show');
+            }, 2000);
+        }
+
+        function showReminder(session, minutes, useModal) {
+            if (useModal) {
+                const modal = document.getElementById('reminder-modal');
+                const text = document.getElementById('reminder-text');
+                text.innerHTML = `
+                    ⏰ تذكير: جلسة ${session.topic} ستبدأ خلال ${minutes} دقيقة
+                    <button onclick="this.parentElement.parentElement.style.display='none'" 
+                            style="margin-right:10px; background:transparent; border:none; color:inherit">
+                        ✕
+                    </button>
+                `;
+                modal.style.display = 'block';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 30000);
+            }
+
             // Browser notification
             if (Notification.permission === 'granted') {
                 new Notification(`تذكير: ${session.topic}`, {
@@ -951,10 +1001,6 @@
                     icon: 'favicon/favicon-32x32.png'
                 });
             }
-            // Auto-hide after 30 seconds
-            setTimeout(() => {
-                modal.style.display = 'none';
-            }, 30000);
         }
 
         function createSessionCard(session) {
@@ -1020,6 +1066,7 @@
                 statusText = 'انتهت';
             }
             const shareButtonId = `share-btn-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`;
+            const reminderButtonId = `reminder-btn-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`;
             return `
             <div class="session-card fade-in">
                 <div class="session-header">
@@ -1058,7 +1105,12 @@
                         مشاركة
                         <i class="fas fa-share-alt"></i>
                     </button>
+                    <button id="${reminderButtonId}" class="reminder-button" onclick="scheduleSingleSessionReminder({topic: '${session.topic}', time: '${session.time}'})" aria-label="تذكير بحلقة ${session.topic}">
+                        تذكير
+                        <i class="fas fa-bell"></i>
+                    </button>
                     <span class="share-feedback" id="feedback-${shareButtonId}">تم النسخ إلى الحافظة</span>
+                    <span class="share-feedback" id="reminder-feedback-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}">تم جدولة التذكير</span>
                 </div>
             </div>`;
         }
