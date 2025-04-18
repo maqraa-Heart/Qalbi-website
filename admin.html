@@ -304,8 +304,8 @@
             <select id="new-link" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600"></select>
             <button id="add-session" class="admin-button inline-block mt-3 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full">إضافة الحلقة</button>
         </div>
-        <!-- Import Sessions from CSV -->
-        <!-- <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+        <!-- Import Sessions from CSV 
+        <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
             <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">استيراد حلقات من ملف CSV</h2>
             <input id="csv-file" type="file" accept=".csv" class="w-full p-3 mb-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
             <button id="import-csv" class="admin-button inline-block mt-3 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full">استيراد</button>
@@ -344,9 +344,9 @@
     </div>
 
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="firebase-app-compat.js"></script>
+    <script src="firebase-firestore-compat.js"></script>
+    <script src="firebase-auth-compat.js"></script>
     <script>
         // Initialize Firebase
         try {
@@ -525,8 +525,13 @@
                         // Validate teacher exists
                         const teacherDoc = await db.collection('teachers').doc(teacher).get();
                         if (!teacherDoc.exists) {
-                            alert(`خطأ في السطر: ${row.join(', ')} - المعلم ${teacher} غير موجود`);
-                            continue;
+                            try {
+                            // Add the teacher with their name as the document ID
+                            await db.collection('teachers').doc(teacher).set({ name: teacher });
+                            } catch (error) {
+                                console.error('Error adding teacher:', error);
+                                alert('فشل إضافة المعلم. حاول مرة أخرى.');
+                            }
                         }
 
                         // Validate time format
@@ -561,8 +566,8 @@
                 }
             };
             reader.readAsText(file);
-        });*/
-
+        });
+        */
 
         // Render teacher dropdown
         function renderTeacherDropdown(selectElement, selectedTeacher = '') {
