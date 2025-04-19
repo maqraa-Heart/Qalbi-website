@@ -18,7 +18,7 @@
     <link rel="icon" type="image/png" sizes="32x32" href="favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
 
-    <!-- Fonts and Icons -->
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
@@ -69,15 +69,65 @@
         }
 
         /* Theme Toggle */
-        .theme-toggle {
+        .theme-toggle-container {
             position: fixed;
-            bottom: 7rem;
+            top: 1rem;
             left: 1rem;
-            background: rgba(255, 255, 255, 0.9);
-            border-radius: 50%;
-            padding: 0.75rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             z-index: 100;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle {
+            width: 3.5rem;
+            height: 1.75rem;
+            background: linear-gradient(to right, #d1d5db, #9ca3af);
+            border-radius: 2rem;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            border: 2px solid #e5e7eb;
+        }
+
+        .theme-toggle input {
+            display: none;
+        }
+
+        .theme-toggle .slider {
+            position: absolute;
+            top: 0.125rem;
+            left: 0.125rem;
+            width: 1.5rem;
+            height: 1.5rem;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease, background 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .theme-toggle .slider::before {
+            content: '☀️';
+            font-size: 0.875rem;
+            color: #f59e0b;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            background: linear-gradient(to right, #1e40af, #3b82f6);
+            border-color: #1e3a8a;
+        }
+
+        [data-theme="dark"] .theme-toggle .slider {
+            transform: translateX(1.75rem);
+            background: #1e3a8a;
+        }
+
+        [data-theme="dark"] .theme-toggle .slider::before {
+            content: '🌙';
+            color: #f3f4f6;
         }
 
         /* Reminder Button Styles */
@@ -101,7 +151,7 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
             background: linear-gradient(to right, #f59e0b, #b45309);
         }
-        /* Mobile adjustments for reminder button */
+
         @media (max-width: 640px) {
             .reminder-button {
                 font-size: 0.75rem;
@@ -122,7 +172,7 @@
             background-color: rgba(255, 255, 255, 0);
         }
 
-        .refresh-btn p{
+        .refresh-btn p {
             font-size: 1.75rem;
         }
 
@@ -538,24 +588,34 @@
         /* Top Button */
         .top-btn {
             position: fixed;
-            bottom: 5rem;
+            bottom: 2rem;
             left: 1rem;
-            padding: 0.75rem;
-            background-color: rgba(212, 208, 208, 0.9);
-            border-radius: 9999px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            transition: background-color 0.3s ease;
+            width: 3rem;
+            height: 3rem;
+            background: linear-gradient(135deg, #2563eb, #14b8a6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border: 2px solid #ffffff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
             display: none;
+            cursor: pointer;
         }
 
         .top-btn:hover {
-            background-color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #1d4ed8, #0d9488);
         }
 
-        .top-btn-icon {
-            color: #2563eb;
+        .top-btn svg {
+            width: 1.5rem;
+            height: 1.5rem;
+            fill: #ffffff;
         }
-
+   
         /* Footer Styles */
         .footer {
             margin-top: 3rem;
@@ -583,6 +643,42 @@
 
         .social-links a:hover {
             color: #0d9488;
+        }
+
+        /* Reminder Modal */
+        #reminder-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            max-width: 90%;
+            text-align: center;
+        }
+
+        #reminder-modal p {
+            margin: 0;
+            font-size: 1rem;
+            color: #1a202c;
+        }
+
+        #reminder-modal button {
+            margin-top: 0.5rem;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            cursor: pointer;
+        }
+
+        #reminder-modal button:hover {
+            background: #1d4ed8;
         }
 
         /* Other Styles */
@@ -728,6 +824,38 @@
             .greeting-text {
                 font-size: 0.875rem;
             }
+
+            .theme-toggle-container {
+                top: 0.5rem;
+                left: 0.5rem;
+            }
+            .theme-toggle {
+                width: 3rem;
+                height: 1.5rem;
+            }
+            .theme-toggle .slider {
+                width: 1.25rem;
+                height: 1.25rem;
+                top: 0.125rem;
+                left: 0.125rem;
+            }
+            [data-theme="dark"] .theme-toggle .slider {
+                transform: translateX(1.5rem);
+            }
+            .theme-toggle .slider::before {
+                font-size: 0.75rem;
+            }
+
+            .top-btn {
+                width: 2.5rem;
+                height: 2.5rem;
+                bottom: 1.5rem;
+                left: 0.5rem;
+            }
+            .top-btn svg {
+                width: 1.25rem;
+                height: 1.25rem;
+            }
         }
     </style>
 </head>
@@ -740,9 +868,18 @@
     </div>
 
     <!-- Theme Toggle Button -->
-    <button class="theme-toggle" id="theme-toggle" aria-label="تبديل الوضع بين الفاتح والداكن">
-        <i class="fas fa-moon"></i>
-    </button>
+    <div class="theme-toggle-container">
+        <label class="theme-toggle" for="theme-toggle">
+            <input type="checkbox" id="theme-toggle" aria-label="تبديل الوضع بين الفاتح والداكن">
+            <span class="slider"></span>
+        </label>
+    </div>
+
+    <!-- Reminder Modal -->
+    <div id="reminder-modal">
+        <p id="reminder-text"></p>
+        <button onclick="document.getElementById('reminder-modal').style.display='none'">إغلاق</button>
+    </div>
 
     <!-- Main Container -->
     <div class="glass-container" id="main-content" style="display: none;">
@@ -787,7 +924,9 @@
         <div id="session-list"></div>
         <!-- Back to Top -->
         <button id="top-btn" class="top-btn" aria-label="العودة إلى الأعلى">
-            <i class="fas fa-arrow-up top-btn-icon"></i>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 5l-7 7h5v7h4v-7h5l-7-7z"/>
+            </svg>
         </button>
         <!-- Footer -->
         <footer class="footer">
@@ -800,7 +939,7 @@
                 <a href="https://t.me/your_group" target="_blank" aria-label="مجموعة تليجرام">
                     <i class="fab fa-telegram"></i>
                 </a>
-                <a href="/cdn-cgi/l/email-protection#3714181903161403371a16060516165a1f121605035914181a" aria-label="البريد الإلكتروني">
+                <a href="/cdn-cgi/l/email-protection#7714181903161403371a16060516165a1f121605035914181a" aria-label="البريد الإلكتروني">
                     <i class="fas fa-envelope"></i>
                 </a>
             </div>
@@ -846,7 +985,8 @@
         function initializeTheme() {
             const savedTheme = localStorage.getItem('theme') || 'light';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            updateThemeIcon(savedTheme);
+            const toggle = document.getElementById('theme-toggle');
+            toggle.checked = savedTheme === 'dark';
         }
 
         function toggleTheme() {
@@ -854,12 +994,6 @@
             const newTheme = currentTheme === 'light' ? 'dark' : 'light';
             document.documentElement.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
-            updateThemeIcon(newTheme);
-        }
-
-        function updateThemeIcon(theme) {
-            const icon = document.querySelector('#theme-toggle i');
-            icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
         }
 
         function showError(message) {
@@ -877,16 +1011,13 @@
                     console.warn('Invalid time string:', timeStr);
                     return 0;
                 }
-                // Normalize spaces and remove non-standard characters
                 const normalizedStr = timeStr.trim().replace(/\s+/g, ' ').replace(/[٫،]/g, '');
-                // Convert Arabic numerals to English
                 const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
                 const englishNumerals = '0123456789';
                 let convertedStr = normalizedStr;
                 for (let i = 0; i < arabicNumerals.length; i++) {
                     convertedStr = convertedStr.replace(new RegExp(arabicNumerals[i], 'g'), englishNumerals[i]);
                 }
-                // Match time format (e.g., "8:30 مساءً" or "08:30 صباحًا")
                 const match = convertedStr.match(/(\d{1,2}):(\d{2})\s*(مساءً|صباحًا)/);
                 if (!match) {
                     throw new Error('Invalid time format: ' + convertedStr);
@@ -894,22 +1025,16 @@
                 let hours = parseInt(match[1], 10);
                 const minutes = parseInt(match[2], 10);
                 const period = match[3];
-                // Validate hours and minutes
                 if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
                     throw new Error('Invalid hours or minutes: ' + convertedStr);
                 }
-                // Convert to 24-hour format
                 if (period === 'مساءً') {
                     if (hours !== 12) hours += 12;
                 } else if (period === 'صباحًا') {
                     if (hours === 12) hours = 0;
                 }
-                // Create a date object for today with the given time
                 const date = new Date();
-                date.setHours(hours);
-                date.setMinutes(minutes);
-                date.setSeconds(0);
-                date.setMilliseconds(0);
+                date.setHours(hours, minutes, 0, 0);
                 return date.getTime();
             } catch (error) {
                 console.error('Error parsing time:', timeStr, error);
@@ -919,15 +1044,16 @@
 
         // Session Reminders
         function setupSessionReminders(sessions) {
+            const now = Date.now();
             sessions.forEach(session => {
                 const sessionTime = parseArabicTime(session.time);
-                const now = Date.now();
+                if (sessionTime <= now) return; // Skip past sessions
                 [30, 15].forEach(minutes => {
                     const reminderTime = sessionTime - (minutes * 60 * 1000);
                     if (reminderTime > now) {
                         const timeout = reminderTime - now;
                         setTimeout(() => {
-                            showReminder(session, minutes, true); // Pass true for modal
+                            showReminder(session, minutes, true);
                         }, timeout);
                     }
                 });
@@ -951,51 +1077,68 @@
         function setupReminderForSession(session) {
             const sessionTime = parseArabicTime(session.time);
             const now = Date.now();
+            const sessionDuration = 90 * 60 * 1000; // 90 minutes in milliseconds
+
+            // Check if session has started or is ongoing
+            if (sessionTime <= now && now < sessionTime + sessionDuration) {
+                alert('الجلسة جارية الآن. لا يمكن جدولة تذكير.');
+                return;
+            }
+            // Check if session has ended
+            if (sessionTime + sessionDuration <= now) {
+                alert('الجلسة قد انتهت. لا يمكن جدولة تذكير.');
+                return;
+            }
+            // Schedule reminders for 30 and 15 minutes before
             [30, 15].forEach(minutes => {
                 const reminderTime = sessionTime - (minutes * 60 * 1000);
                 if (reminderTime > now) {
                     const timeout = reminderTime - now;
                     setTimeout(() => {
-                        showReminder(session, minutes, false); // Pass false for no modal
+                        showReminder(session, minutes, false);
                     }, timeout);
                 }
             });
-            // Show feedback to user
+            // Show feedback
             const feedbackElement = document.getElementById(`reminder-feedback-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`);
-            feedbackElement.classList.add('show');
-            setTimeout(() => {
-                feedbackElement.classList.remove('show');
-            }, 2000);
+            if (feedbackElement) {
+                feedbackElement.classList.add('show');
+                setTimeout(() => {
+                    feedbackElement.classList.remove('show');
+                }, 2000);
+            }
         }
 
         function showReminder(session, minutes, useModal) {
-            if (useModal) {
-                const modal = document.getElementById('reminder-modal');
-                const text = document.getElementById('reminder-text');
-                text.innerHTML = `
-                    ⏰ تذكير: جلسة ${session.topic} ستبدأ خلال ${minutes} دقيقة
-                    <button onclick="this.parentElement.parentElement.style.display='none'" 
-                            style="margin-right:10px; background:transparent; border:none; color:inherit">
-                        ✕
-                    </button>
-                `;
-                modal.style.display = 'block';
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 30000);
-            }
-            // Browser notification
-            if (Notification.permission === 'granted') {
-                new Notification(`تذكير: ${session.topic}`, {
-                    body: `الموعد بعد ${minutes} دقيقة`,
-                    icon: 'favicon/favicon-32x32.png'
-                });
+            try {
+                // Browser notification
+                if (Notification.permission === 'granted') {
+                    new Notification(`تذكير: ${session.topic}`, {
+                        body: `الموعد بعد ${minutes} دقيقة`,
+                        icon: 'favicon/favicon-32x32.png'
+                    });
+                }
+                // Modal notification (only if useModal is true)
+                if (useModal) {
+                    const modal = document.getElementById('reminder-modal');
+                    const text = document.getElementById('reminder-text');
+                    if (modal && text) {
+                        text.innerHTML = `⏰ تذكير: جلسة ${session.topic} ستبدأ خلال ${minutes} دقيقة`;
+                        modal.style.display = 'block';
+                        setTimeout(() => {
+                            modal.style.display = 'none';
+                        }, 30000);
+                    } else {
+                        console.warn('Reminder modal elements not found');
+                    }
+                }
+            } catch (error) {
+                console.error('Error showing reminder:', session, error);
             }
         }
 
         function createSessionCard(session) {
             try {
-                // Validate session data
                 if (!session.topic || !session.teacher || !session.day || !session.time || !session.link || session.isVisible === undefined) {
                     console.warn('Invalid session data:', session);
                     return '';
@@ -1005,21 +1148,19 @@
                     console.warn('Failed to parse session time:', session.time);
                     return '';
                 }
-                // Convert time to hours for period determination
                 const date = new Date(sessionTime);
                 const hours = date.getHours();
                 const minutes = date.getMinutes();
-                // Convert English numerals to Arabic for display
                 const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
                 const englishNumerals = '0123456789';
-                let displayHours = hours % 12 || 12; // Convert to 12-hour format
+                let displayHours = hours % 12 || 12;
                 let displayHoursStr = displayHours.toString();
                 let displayMinutes = minutes.toString().padStart(2, '0');
+
                 for (let i = 0; i < englishNumerals.length; i++) {
                     displayHoursStr = displayHoursStr.replace(new RegExp(englishNumerals[i], 'g'), arabicNumerals[i]);
-                    displayMinutes = displayMinutes.replace(new RegExp(englishNumerals[i], 'g'), arabicNumerals[i]);
+                    displayMinutes = displayMinutes.replace(new RegExp(englishNumerals[i], 'g'), arabicNumerals[i]); 
                 }
-                // Determine period (صباحًا, ظهراً, عصراً, مساءً)
                 let displayPeriod;
                 if (hours >= 4 && hours < 12) {
                     displayPeriod = 'صباحًا';
@@ -1030,20 +1171,22 @@
                 } else {
                     displayPeriod = 'مساءً';
                 }
-                // Format display time
                 let displayTime;
                 if (minutes === 0) {
                     displayTime = `${displayHoursStr} ${displayPeriod}`;
                 } else {
                     displayTime = `${displayHoursStr}:${displayMinutes} ${displayPeriod}`;
                 }
-                // Calculate session status and countdown
                 const now = new Date();
-                const currentTime = now.toLocaleTimeString('ar-EG', { timeZone: 'Asia/Riyadh', hour12: false });
-                const [currentHours, currentMinutes] = currentTime.split(':').map(Number);
+                let currentTime = now.toLocaleTimeString('ar-EG', { timeZone: 'Asia/Riyadh', hour12: false });
+                // Convert Arabic to English numerals for currentTime
+                currentTime = currentTime.replace(/[٠١٢٣٤٥٦٧٨٩]/g, match => englishNumerals[arabicNumerals.indexOf(match)]);
+                const [currentHours, currentMinutes] = currentTime.split(':').slice(0, 2).map(Number);               
                 const currentTimeInMinutes = currentHours * 60 + currentMinutes;
                 const sessionTimeInMinutes = hours * 60 + minutes;
-                const sessionDuration = 90; // 90 minutes
+                const sessionDuration = 90;
+
+
                 let statusClass, statusText, countdownHtml = '';
                 if (currentTimeInMinutes >= sessionTimeInMinutes && currentTimeInMinutes < sessionTimeInMinutes + sessionDuration) {
                     statusClass = 'status-running';
@@ -1052,7 +1195,7 @@
                     statusClass = 'status-waiting';
                     statusText = 'قريبًا';
                     const timeDiff = sessionTimeInMinutes - currentTimeInMinutes;
-                    if (timeDiff <= 60) { // Show countdown if ≤ 60 minutes
+                    if (timeDiff <= 60) {
                         countdownHtml = `<div class="countdown-timer" id="countdown-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}" role="timer">يبدأ بعد ${timeDiff} دقيقة</div>`;
                     }
                 } else {
@@ -1157,7 +1300,6 @@
             });
             setInterval(updateCountdowns, 60000);
             setInterval(renderSessions, 300000);
-            // Request notification permission
             if (Notification.permission !== 'granted') {
                 Notification.requestPermission();
             }
@@ -1176,7 +1318,6 @@
                 }
                 let filteredSessions = sessions
                     .filter(session => {
-                        // Validate session data
                         if (!session.isVisible || !session.time || !session.topic || !session.teacher || !session.day || !session.link) {
                             console.warn('Skipping invalid session:', session);
                             return false;
@@ -1272,14 +1413,14 @@
         window.addEventListener('resize', checkMobile);
         checkMobile();
 
+        // Event Listeners
         document.getElementById('current-year').textContent = new Date().getFullYear();
         document.getElementById('refresh-btn').addEventListener('click', renderSessions);
-        document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
-
+        document.getElementById('theme-toggle').addEventListener('change', toggleTheme);
+        initializeTheme();
         updateDayDisplay();
         updateTimeDisplay();
         setupScrollTop();
-        initializeTheme();
         setupRealtime();
     </script>
 </body>
