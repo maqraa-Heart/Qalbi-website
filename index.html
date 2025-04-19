@@ -56,7 +56,7 @@
             backdrop-filter: blur(10px);
             border-radius: 1.5rem;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            max-width: 42rem;
+            max-width: 50rem;
             margin-left: auto;
             margin-right: auto;
             padding: 1rem;
@@ -314,15 +314,9 @@
         }
 
         .time-display {
-            font-size: 1rem;
+            font-size: 1.5rem;
             font-weight: 700;
             color: white;
-        }
-
-        @media (min-width: 640px) {
-            .time-display {
-                font-size: 1rem;
-            }
         }
 
         /* Session Card Styles */
@@ -777,7 +771,8 @@
             }
 
             .join-now-button {
-                font-size: 0.875rem;
+                font-size: 1rem;
+                font-weight: 800;
                 padding: 0.5rem;
                 height: 1.5rem;
                 gap: 0.25rem;
@@ -1061,16 +1056,21 @@
         }
 
         function scheduleSingleSessionReminder(session) {
-            if (Notification.permission !== 'granted') {
+            if (Notification.permission === 'granted') {
+                setupReminderForSession(session);
+            } else if (Notification.permission !== 'denied') {
                 Notification.requestPermission().then(permission => {
                     if (permission === 'granted') {
                         setupReminderForSession(session);
                     } else {
                         alert('تم رفض إذن الإشعارات. لا يمكن جدولة التذكير.');
                     }
+                }).catch(error => {
+                    console.error('Error requesting notification permission:', error);
+                    alert('فشل طلب إذن الإشعارات. حاول مرة أخرى.');
                 });
             } else {
-                setupReminderForSession(session);
+                alert('تم رفض إذن الإشعارات مسبقًا. يرجى تمكين الإشعارات في إعدادات المتصفح.');
             }
         }
 
@@ -1235,7 +1235,7 @@
                     </div>
                     <div class="button-container">
                         <a href="${session.link}" target="_self" class="join-now-button" aria-label="الانضمام إلى حلقة ${session.topic}">
-                            انضم إلى الحلقة  
+                            انضم إلى الحلقة &ensp; 
                             ▶
                         </a>
                         <button id="${shareButtonId}" class="share-button" onclick="shareSessionLink('${session.link}', '${shareButtonId}')" aria-label="مشاركة رابط حلقة ${session.topic}">
@@ -1300,9 +1300,6 @@
             });
             setInterval(updateCountdowns, 60000);
             setInterval(renderSessions, 300000);
-            if (Notification.permission !== 'granted') {
-                Notification.requestPermission();
-            }
         }
 
         function renderSessions() {
