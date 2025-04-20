@@ -448,8 +448,8 @@
             text-decoration: none;
         }
         .join-now-button img {
-            width: 2.5rem;
-            height: 2.5rem;
+            width: 2.1rem;
+            height: 2.1rem;
             object-fit: contain;
             vertical-align: middle;
         }
@@ -864,11 +864,6 @@
         </label>
     </div>
 
-    <!-- Reminder Modal -->
-    <div id="reminder-modal">
-        <p id="reminder-text"></p>
-        <button onclick="document.getElementById('reminder-modal').style.display='none'">إغلاق</button>
-    </div>
 
     <!-- Main Container -->
     <div class="glass-container" id="main-content" style="display: none;">
@@ -993,42 +988,38 @@
         }
 
         function parseArabicTime(timeStr) {
-            try {
-                if (!timeStr || typeof timeStr !== 'string') {
-                    console.warn('Invalid time string:', timeStr);
-                    return 0;
-                }
-                const normalizedStr = timeStr.trim().replace(/\s+/g, ' ').replace(/[٫،]/g, '');
-                const arabicNumerals = '٠١٢٣٤٥٦٧٨٩';
-                const englishNumerals = '0123456789';
-                let convertedStr = normalizedStr;
-                for (let i = 0; i < arabicNumerals.length; i++) {
-                    convertedStr = convertedStr.replace(new RegExp(arabicNumerals[i], 'g'), englishNumerals[i]);
-                }
-                const match = convertedStr.match(/(\d{1,2}):(\d{2})\s*(مساءً|صباحًا)/);
-                if (!match) {
-                    throw new Error('Invalid time format: ' + convertedStr);
-                }
-                let hours = parseInt(match[1], 10);
-                const minutes = parseInt(match[2], 10);
-                const period = match[3];
-                if (isNaN(hours) || isNaN(minutes) || hours < 0 || hours > 23 || minutes < 0 || minutes > 59) {
-                    throw new Error('Invalid hours or minutes: ' + convertedStr);
-                }
-                if (period === 'مساءً') {
-                    if (hours !== 12) hours += 12;
-                } else if (period === 'صباحًا') {
-                    if (hours === 12) hours = 0;
-                }
-                const date = new Date();
-                date.setHours(hours, minutes, 0, 0);
-                return date.getTime();
-            } catch (error) {
-                console.error('Error parsing time:', timeStr, error);
-                return 0;
-            }
+            const arabicToEnglish = str => str.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+            const [timePart, period] = arabicToEnglish(timeStr).split(' ');
+            const [hours, minutes] = timePart.split(':').map(Number);
+            
+            let hours24 = hours;
+            if (period === 'مساءً' && hours !== 12) hours24 += 12;
+            if (period === 'صباحًا' && hours === 12) hours24 = 0;
+            
+            const now = new Date();
+            const sessionTime = new Date(
+                now.getFullYear(),
+                now.getMonth(),
+                now.getDate(),
+                hours24,
+                minutes
+            );
+            
+            return sessionTime.getTime();
         }
 
+        /*
+        // Utility function to convert VAPID key
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
 
         // Schedule a reminder for a single session when the user clicks the reminder button
         function scheduleSingleSessionReminder(session) {
@@ -1052,9 +1043,12 @@
 
         // Set up a push notification for the session start time
         async function setupReminderForSession(session) {
-            const sessionTime = parseArabicTime(session.time);
+            const sessionTime = parseArabicTime(session.time); // Assumes parseArabicTime is defined elsewhere
             const now = Date.now();
             const sessionDuration = 90 * 60 * 1000; // 90 minutes in milliseconds
+            console.log('Parsed session time:', new Date(sessionTime).toLocaleString());
+            console.log('Current time:', new Date(now).toLocaleString());
+            console.log('Delay:', sessionTime - now);
 
             // Check if session has started or is ongoing
             if (sessionTime <= now && now < sessionTime + sessionDuration) {
@@ -1069,11 +1063,15 @@
 
             // Schedule push notification at session start
             try {
-                // Register Service Worker and wait for it to be active
-                const registration = await navigator.serviceWorker.register('/Qalbi-website/service-worker.js');
-                
+                // Register Service Worker with explicit scope
+                const registration = await navigator.serviceWorker.register('/Qalbi-website/service-worker.js', {
+                    scope: '/Qalbi-website/'
+                });
+                console.log('Service Worker registered:', registration);
+
                 // Wait for the Service Worker to be active
                 await navigator.serviceWorker.ready;
+                console.log('Service Worker ready:', navigator.serviceWorker.ready);
 
                 // Verify the Service Worker is active
                 if (!registration.active) {
@@ -1084,7 +1082,11 @@
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array('BDrF27Kytfbs0EddCX1A3IQ51a9_AN4Mv57j-3qMNS1wqCVqE8nW69wkzgdA1mVD67kM9p0LAK87nmrYeQQgZg8')
+                }).catch(err => {
+                    console.error('Subscription error:', err);
+                    throw err;
                 });
+                console.log('Push subscription created:', subscription);
 
                 const delay = sessionTime - now;
                 if (delay > 0) {
@@ -1095,6 +1097,7 @@
                             session: session,
                             delay: delay
                         });
+                        console.log('Message sent to Service Worker:', { session, delay });
                     } else {
                         // Fallback: Wait for controller to be available
                         navigator.serviceWorker.addEventListener('controllerchange', () => {
@@ -1104,6 +1107,7 @@
                                     session: session,
                                     delay: delay
                                 });
+                                console.log('Message sent to Service Worker after controllerchange:', { session, delay });
                             }
                         });
                     }
@@ -1126,6 +1130,7 @@
                 alert('فشل جدولة التذكير. تأكد من أن المتصفح يدعم الإشعارات والاتصال بالإنترنت.');
             }
         }
+
         // Show a push notification
         function showReminder(session) {
             try {
@@ -1140,19 +1145,7 @@
                 console.error('Error showing reminder:', session, error);
             }
         }
-
-        // Utility function to convert VAPID key
-        function urlBase64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray;
-        }
-
+        */
 
         function createSessionCard(session) {
             try {
@@ -1223,7 +1216,7 @@
                     statusText = 'انتهت';
                 }
                 const shareButtonId = `share-btn-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`;
-                const reminderButtonId = `reminder-btn-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`;
+                //const reminderButtonId = `reminder-btn-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`;
                 return `
                 <div class="session-card fade-in">
                     <div class="session-header">
@@ -1255,20 +1248,13 @@
                     </div>
                     <div class="button-container">
                         <a href="${session.link}" target="_self" class="join-now-button" aria-label="الانضمام إلى حلقة ${session.topic}">
-                            انضم إلى الحلقة 
+                            انضمي إلى الحلقة 
                             <img src="Images/Zoom-icon.png" alt="أيقونة زووم" aria-hidden="true">
                         </a>
                         <button id="${shareButtonId}" class="share-button" onclick="shareSessionLink('${session.link}', '${shareButtonId}')" aria-label="مشاركة رابط حلقة ${session.topic}">
                             مشاركة
                             🔗
                         </button>
-                        ${showReminderButton ? `
-                        <button id="${reminderButtonId}" class="reminder-button" onclick="scheduleSingleSessionReminder({topic: '${session.topic}', time: '${session.time}'})" aria-label="تذكير بحلقة ${session.topic}">
-                            تذكير
-                            🔔
-                        </button>
-                        <span class="share-feedback" id="reminder-feedback-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}">تم جدولة التذكير</span>
-                        ` : ''}
                     </div>
                 </div>`;
             } catch (error) {
