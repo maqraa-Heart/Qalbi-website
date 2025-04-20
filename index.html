@@ -22,7 +22,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@100..900&display=swap" rel="stylesheet">
 
     <style>
         html {
@@ -248,8 +247,8 @@
             font-size: 1.5rem;
             font-weight: 700;
             margin-bottom: 0.5rem;
-            line-height: 1.2;
-            font-family: 'Noto Sans Arabic', sans-serif;
+            line-height: 1.5;
+            font-family: 'Cairo', sans-serif;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
@@ -421,14 +420,8 @@
         }
 
         .time-day-text {
-            font-size: 1rem;
-            font-weight: 700;
-        }
-
-        @media (min-width: 640px) {
-            .time-day-text {
-                font-size: 1.125rem;
-            }
+            font-size: 1.1rem;
+            font-weight: 800;
         }
 
         .button-container {
@@ -454,7 +447,12 @@
             border: none;
             text-decoration: none;
         }
-
+        .join-now-button img {
+            width: 2.5rem;
+            height: 2.5rem;
+            object-fit: contain;
+            vertical-align: middle;
+        }
         .join-now-button:hover {
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
             background: linear-gradient(to right, #14b8a6, #218179);
@@ -681,8 +679,8 @@
         }
 
         .inline-photo {
-            width: 2rem;
-            height: 2rem;
+            width: 3rem;
+            height: 3rem;
             display: inline-block;
             vertical-align: middle;
         }
@@ -739,11 +737,7 @@
                 margin-bottom: 1.5rem;
             }
 
-            .header-title {
-                font-size: 1.5rem;
-                line-height: 1;
-                margin: 0 0.25rem;
-            }
+
 
             .header-subtitle {
                 font-size: 0.95rem;
@@ -890,9 +884,9 @@
                     <p class="greeting-text">السلام عليكم ورحمة الله وبركاته</p>
                     <h1 class="header-title">
                         جدول محاضرات ليطمئن قلبي
-                        <img src="favicon/favicon-32x32.png" alt="Small icon" class="inline-photo">
+                        <img src="favicon/fav.png" alt="Small icon" class="inline-photo">
                     </h1>
-                    <p class="header-subtitle">الدروس العلمية المباشرة علي برنامج زووم <i class="fas fa-video"></i></p>
+                    <p class="header-subtitle">الدروس العلمية المباشرة علي برنامج زووم</p>
                 </div>
                 <!-- Admin Button -->
                 <a href="admin.html" class="admin-btn" aria-label="لوحة تحكم الإدارة">
@@ -934,9 +928,7 @@
                 <a href="https://t.me/your_group" target="_blank" aria-label="مجموعة تليجرام">
                     <i class="fab fa-telegram"></i>
                 </a>
-                <a href="/cdn-cgi/l/email-protection#7714181903161403371a16060516165a1f121605035914181a" aria-label="البريد الإلكتروني">
-                    <i class="fas fa-envelope"></i>
-                </a>
+                <a href="/cdn-cgi/l/email-protection#7714181903161403371a16060516165a1f121605035914181a" aria-label="البريد الإلكتروني"></a>
             </div>
         </footer>
     </div>
@@ -1037,24 +1029,8 @@
             }
         }
 
-        // Session Reminders
-        function setupSessionReminders(sessions) {
-            const now = Date.now();
-            sessions.forEach(session => {
-                const sessionTime = parseArabicTime(session.time);
-                if (sessionTime <= now) return; // Skip past sessions
-                [30, 15].forEach(minutes => {
-                    const reminderTime = sessionTime - (minutes * 60 * 1000);
-                    if (reminderTime > now) {
-                        const timeout = reminderTime - now;
-                        setTimeout(() => {
-                            showReminder(session, minutes, true);
-                        }, timeout);
-                    }
-                });
-            });
-        }
 
+        // Schedule a reminder for a single session when the user clicks the reminder button
         function scheduleSingleSessionReminder(session) {
             if (Notification.permission === 'granted') {
                 setupReminderForSession(session);
@@ -1074,7 +1050,8 @@
             }
         }
 
-        function setupReminderForSession(session) {
+        // Set up a push notification for the session start time
+        async function setupReminderForSession(session) {
             const sessionTime = parseArabicTime(session.time);
             const now = Date.now();
             const sessionDuration = 90 * 60 * 1000; // 90 minutes in milliseconds
@@ -1089,53 +1066,66 @@
                 alert('الجلسة قد انتهت. لا يمكن جدولة تذكير.');
                 return;
             }
-            // Schedule reminders for 30 and 15 minutes before
-            [30, 15].forEach(minutes => {
-                const reminderTime = sessionTime - (minutes * 60 * 1000);
-                if (reminderTime > now) {
-                    const timeout = reminderTime - now;
-                    setTimeout(() => {
-                        showReminder(session, minutes, false);
-                    }, timeout);
+
+            // Schedule push notification at session start
+            try {
+                const registration = await navigator.serviceWorker.register('/service-worker.js');
+                const subscription = await registration.pushManager.subscribe({
+                    userVisibleOnly: true,
+                    applicationServerKey: urlBase64ToUint8Array('BDrF27Kytfbs0EddCX1A3IQ51a9_AN4Mv57j-3qMNS1wqCVqE8nW69wkzgdA1mVD67kM9p0LAK87nmrYeQQgZg8')
+                });
+
+                const delay = sessionTime - now;
+                if (delay > 0) {
+                    // Send reminder details to Service Worker
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'SCHEDULE_NOTIFICATION',
+                        session: session,
+                        delay: delay
+                    });
                 }
-            });
-            // Show feedback
-            const feedbackElement = document.getElementById(`reminder-feedback-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`);
-            if (feedbackElement) {
-                feedbackElement.classList.add('show');
-                setTimeout(() => {
-                    feedbackElement.classList.remove('show');
-                }, 2000);
+
+                // Show feedback
+                const feedbackElement = document.getElementById(`reminder-feedback-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`);
+                if (feedbackElement) {
+                    feedbackElement.classList.add('show');
+                    setTimeout(() => {
+                        feedbackElement.classList.remove('show');
+                    }, 2000);
+                }
+            } catch (error) {
+                console.error('Error setting up push notification:', error);
+                alert('فشل جدولة التذكير. تأكد من تفعيل الإشعارات والاتصال بالإنترنت.');
             }
         }
 
-        function showReminder(session, minutes, useModal) {
+        // Show a push notification
+        function showReminder(session) {
             try {
                 // Browser notification
                 if (Notification.permission === 'granted') {
                     new Notification(`تذكير: ${session.topic}`, {
-                        body: `الموعد بعد ${minutes} دقيقة`,
+                        body: `جلسة ${session.topic} تبدأ الآن!`,
                         icon: 'favicon/favicon-32x32.png'
                     });
-                }
-                // Modal notification (only if useModal is true)
-                if (useModal) {
-                    const modal = document.getElementById('reminder-modal');
-                    const text = document.getElementById('reminder-text');
-                    if (modal && text) {
-                        text.innerHTML = `⏰ تذكير: جلسة ${session.topic} ستبدأ خلال ${minutes} دقيقة`;
-                        modal.style.display = 'block';
-                        setTimeout(() => {
-                            modal.style.display = 'none';
-                        }, 30000);
-                    } else {
-                        console.warn('Reminder modal elements not found');
-                    }
                 }
             } catch (error) {
                 console.error('Error showing reminder:', session, error);
             }
         }
+
+        // Utility function to convert VAPID key
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
 
         function createSessionCard(session) {
             try {
@@ -1188,12 +1178,15 @@
 
 
                 let statusClass, statusText, countdownHtml = '';
+                let showReminderButton = false;
+
                 if (currentTimeInMinutes >= sessionTimeInMinutes && currentTimeInMinutes < sessionTimeInMinutes + sessionDuration) {
                     statusClass = 'status-running';
                     statusText = 'جارية الآن';
                 } else if (currentTimeInMinutes < sessionTimeInMinutes) {
                     statusClass = 'status-waiting';
                     statusText = 'قريبًا';
+                    showReminderButton = true;
                     const timeDiff = sessionTimeInMinutes - currentTimeInMinutes;
                     if (timeDiff <= 60) {
                         countdownHtml = `<div class="countdown-timer" id="countdown-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}" role="timer">يبدأ بعد ${timeDiff} دقيقة</div>`;
@@ -1235,19 +1228,20 @@
                     </div>
                     <div class="button-container">
                         <a href="${session.link}" target="_self" class="join-now-button" aria-label="الانضمام إلى حلقة ${session.topic}">
-                            انضم إلى الحلقة &ensp; 
-                            ▶
+                            انضم إلى الحلقة 
+                            <img src="Images/Zoom-icon.png" alt="أيقونة زووم" aria-hidden="true">
                         </a>
                         <button id="${shareButtonId}" class="share-button" onclick="shareSessionLink('${session.link}', '${shareButtonId}')" aria-label="مشاركة رابط حلقة ${session.topic}">
                             مشاركة
                             🔗
                         </button>
+                        ${showReminderButton ? `
                         <button id="${reminderButtonId}" class="reminder-button" onclick="scheduleSingleSessionReminder({topic: '${session.topic}', time: '${session.time}'})" aria-label="تذكير بحلقة ${session.topic}">
                             تذكير
                             🔔
                         </button>
-                        <span class="share-feedback" id="feedback-${shareButtonId}">تم النسخ إلى الحافظة</span>
                         <span class="share-feedback" id="reminder-feedback-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}">تم جدولة التذكير</span>
+                        ` : ''}
                     </div>
                 </div>`;
             } catch (error) {
@@ -1342,7 +1336,6 @@
                             sessionList.appendChild(card);
                         }
                     });
-                    setupSessionReminders(filteredSessions);
                 }
                 if (pageLoader && mainContent) {
                     pageLoader.classList.add('hidden');
