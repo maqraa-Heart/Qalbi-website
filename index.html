@@ -1069,7 +1069,18 @@
 
             // Schedule push notification at session start
             try {
+                // Register Service Worker and wait for it to be active
                 const registration = await navigator.serviceWorker.register('/Qalbi-website/service-worker.js');
+                
+                // Wait for the Service Worker to be active
+                await navigator.serviceWorker.ready;
+
+                // Verify the Service Worker is active
+                if (!registration.active) {
+                    throw new Error('Service Worker is not active after registration.');
+                }
+
+                // Create push subscription
                 const subscription = await registration.pushManager.subscribe({
                     userVisibleOnly: true,
                     applicationServerKey: urlBase64ToUint8Array('BDrF27Kytfbs0EddCX1A3IQ51a9_AN4Mv57j-3qMNS1wqCVqE8nW69wkzgdA1mVD67kM9p0LAK87nmrYeQQgZg8')
@@ -1077,12 +1088,29 @@
 
                 const delay = sessionTime - now;
                 if (delay > 0) {
-                    // Send reminder details to Service Worker
-                    navigator.serviceWorker.controller.postMessage({
-                        type: 'SCHEDULE_NOTIFICATION',
-                        session: session,
-                        delay: delay
-                    });
+                    // Ensure the Service Worker controller is ready before sending the message
+                    if (navigator.serviceWorker.controller) {
+                        navigator.serviceWorker.controller.postMessage({
+                            type: 'SCHEDULE_NOTIFICATION',
+                            session: session,
+                            delay: delay
+                        });
+                    } else {
+                        // Fallback: Wait for controller to be available
+                        navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            if (navigator.serviceWorker.controller) {
+                                navigator.serviceWorker.controller.postMessage({
+                                    type: 'SCHEDULE_NOTIFICATION',
+                                    session: session,
+                                    delay: delay
+                                });
+                            }
+                        });
+                    }
+                } else {
+                    console.warn('Session time is in the past or too close:', session);
+                    alert('الجلسة تبدأ قريبًا جدًا. لا يمكن جدولة التذكير.');
+                    return;
                 }
 
                 // Show feedback
@@ -1095,10 +1123,9 @@
                 }
             } catch (error) {
                 console.error('Error setting up push notification:', error);
-                alert('فشل جدولة التذكير. تأكد من تفعيل الإشعارات والاتصال بالإنترنت.');
+                alert('فشل جدولة التذكير. تأكد من أن المتصفح يدعم الإشعارات والاتصال بالإنترنت.');
             }
         }
-
         // Show a push notification
         function showReminder(session) {
             try {
