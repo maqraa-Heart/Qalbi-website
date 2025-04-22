@@ -694,7 +694,7 @@
 
         // Copy reminder template to clipboard
         function copyReminder(session, buttonId) {
-            const reminderTemplate = `🔊 تذكير\n\n📜 اليوم: ${dayTranslations[session.day]}\n\n📚 ${session.topic}\n\n🎙 ${session.teacher}\n\n🕗 التوقيت: ( ${session.time} ) بتوقيت مكة 🕋\n\n💻 المنصة: عبر تطبيق زووم\n\n🔗\n${session.link}`;            
+            const reminderTemplate = `🔊 *تذكير*\n\n📆 *اليوم: ${dayTranslations[session.day]}*\n\n📚 *${session.topic}*\n\n🎙 *${session.teacher}*\n\n🕗 *التوقيت: (  ${session.time}  ) بتوقيت مكة* 🕋\n\n💻 *المنصة: عبر تطبيق زووم*\n\n🔗\n${session.link}\n▫▫▫▫▫`;            
             const feedbackElement = document.getElementById(`reminder-feedback-${buttonId}`);
 
             // Copy to clipboard
@@ -721,16 +721,20 @@
                 card.dataset.id = session.id;
                 // Unique ID for the reminder button to handle feedback
                 const reminderButtonId = `reminder-btn-${session.topic.replace(/\s+/g, '-')}-${session.time.replace(/\s+/g, '-')}`;
+                // Get Zoom link label
+                const zoomLink = zoomLinks.find(link => link.url === session.link);
+                const zoomLabel = zoomLink ? zoomLink.label : 'غير محدد';
                 card.innerHTML = `
                     <div class="flex justify-between items-center">
-                        <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">📖 ${session.topic}</h2>
+                        <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">📖 ${session.topic}${!session.isVisible ? ' <span title="غير مرئي"> ❌مخفية❌ </span>' : ''}</h2>
                         <span class="expand-toggle text-sm sm:text-base" style="font-size: 2rem;">✏️</span>
                     </div>
                     <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">🎙 ${session.teacher}</p>
                     <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">🕒 ${session.time}</p>
                     <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">📅 ${dayTranslations[session.day]}</p>
+                    <p class="text-gray-800 mb-1 sm:mb-2 text-base sm:text-lg">🔗 ${zoomLabel}</p>
                     <div class="session-details hidden">
-                         <div class="relative">
+                        <div class="relative">
                             <button id="${reminderButtonId}" class="reminder-button inline-block mt-2 sm:mt-4 px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition w-full text-center" onclick='copyReminder(${JSON.stringify(session)}, "${reminderButtonId}")'>تذكير</button>
                             <span class="reminder-feedback" id="reminder-feedback-${reminderButtonId}">تم النسخ إلى الحافظة</span>
                         </div>
@@ -871,6 +875,16 @@
             });
         }
 
+        // Set day filter to current day
+        function setCurrentDayFilter() {
+            const now = new Date();
+            const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+            currentDayFilter = currentDay;
+            document.getElementById('day-filter-mobile').value = currentDayFilter;
+            document.querySelectorAll('.day-button').forEach(btn => btn.classList.remove('active'));
+            const activeButton = document.querySelector(`.day-button[data-day="${currentDayFilter}"]`);
+            if (activeButton) activeButton.classList.add('active');
+        }
         // Load data from Firestore
         async function loadData() {
             try {
@@ -889,6 +903,7 @@
                 zoomLinks = zoomLinksSnap.docs.map(doc => doc.data());
 
                 await initDisplayControls();
+                setCurrentDayFilter(); // Set filter to current day
                 await renderTeacherList();
                 await renderZoomLinkList();
                 renderTeacherDropdown(newTeacherSelect);
