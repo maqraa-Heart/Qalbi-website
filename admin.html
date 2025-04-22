@@ -14,6 +14,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="favicon/favicon-16x16.png">
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="Hijri.js"></script> <!-- Added Hijri.js -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
@@ -244,10 +245,13 @@
             <p class="text-base sm:text-xl">إدارة الدروس والمحاضرات الدينية</p>
         </header>
 
-        <!-- Display Date Control -->
+        <!-- Updated HTML for Display Date Control -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
             <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">كتابة تاريخ اليوم للصفحة الرئيسية</h2>
-            <input id="display-date-control" type="text" placeholder="أدخل نص التاريخ (مثال: السبت - ٨ رمضان ١٤٤٦)" class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <div class="flex flex-col sm:flex-row gap-2">
+                <input id="display-date-control" type="text" class="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <button id="update-date-button" class="admin-button px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition">تحديث التاريخ</button>
+            </div>
         </div>
 
         <!-- Main Page Display Control -->
@@ -431,6 +435,60 @@
                 console.error('Error loading settings:', error);
                 alert('فشل تحميل الإعدادات. حاول مرة أخرى.');
             }
+        }
+
+        // Function to convert English digits to Arabic digits
+        function toArabicNumerals(number) {
+            const arabicDigits = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            return number.toString().replace(/\d/g, d => arabicDigits[d]);
+        }
+
+        // Arabic Hijri month names
+        const arabicHijriMonths = [
+            'محرم',
+            'صفر',
+            'ربيع الأول',
+            'ربيع الثاني',
+            'جمادى الأولى',
+            'جمادى الثانية',
+            'رجب',
+            'شعبان',
+            'رمضان',
+            'شوال',
+            'ذو القعدة',
+            'ذو الحجة'
+        ];
+
+        // Function to update date to current date in specified format
+        function updateDisplayDate() {
+            const now = new Date();
+            // Get Gregorian date in Arabic format
+            const gregorianDate = now.toLocaleDateString('ar-EG', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric'
+            }).split(' ').map((part, index) => index === 0 ? toArabicNumerals(part) : part).join(' ');
+            const dayName = now.toLocaleDateString('ar-EG', { weekday: 'long' });
+            
+            // Get Hijri date using Hijri.js
+            const hijriDate = HijriJS.today();
+            const hijriMonthName = arabicHijriMonths[hijriDate.month - 1]; // Adjust for 0-based index
+            const hijriDay = toArabicNumerals(hijriDate.day);
+            const hijriYear = toArabicNumerals(hijriDate.year);
+            const hijriFormatted = `${hijriDay} ${hijriMonthName} ${hijriYear}هـ`;
+
+            // Combine in the desired format: يوم الثلاثاء ٢٤ شوال ١٤٤٦هـ -٢٢ أبريل ٢٠٢٥م
+            const formattedDate = `يوم ${dayName} ${hijriFormatted} -${gregorianDate}م`;
+            displayDateControl.value = formattedDate;
+            
+            // Save to Firestore
+            db.collection('settings').doc('display').set(
+                { displayedDay: displayDayControl.value, displayedDate: formattedDate },
+                { merge: true }
+            ).catch(error => {
+                console.error('Error updating display date:', error);
+                alert('فشل تحديث التاريخ. حاول مرة أخرى.');
+            });
         }
 
         // Parse Arabic time to minutes since midnight
@@ -1106,6 +1164,9 @@
 
         // Add session button
         addSessionButton.addEventListener('click', addSession);
+        // Add event listener for update date button
+        document.getElementById('update-date-button').addEventListener('click', updateDisplayDate);
+    
     </script>
 </body>
 </html>
