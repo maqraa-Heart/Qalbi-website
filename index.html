@@ -1045,7 +1045,7 @@
         async function setupReminderForSession(session) {
             const sessionTime = parseArabicTime(session.time); // Assumes parseArabicTime is defined elsewhere
             const now = Date.now();
-            const sessionDuration = 90 * 60 * 1000; // 90 minutes in milliseconds
+            const sessionDuration = 60 * 60 * 1000; // 90 minutes in milliseconds
             console.log('Parsed session time:', new Date(sessionTime).toLocaleString());
             console.log('Current time:', new Date(now).toLocaleString());
             console.log('Delay:', sessionTime - now);
@@ -1194,7 +1194,7 @@
                 const [currentHours, currentMinutes] = currentTime.split(':').slice(0, 2).map(Number);               
                 const currentTimeInMinutes = currentHours * 60 + currentMinutes;
                 const sessionTimeInMinutes = hours * 60 + minutes;
-                const sessionDuration = 90;
+                const sessionDuration = 60;
 
 
                 let statusClass, statusText, countdownHtml = '';
