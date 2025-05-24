@@ -613,7 +613,7 @@
             margin-top: 3rem;
             text-align: center;
             color: #4b5563;
-            font-size: 0.875rem;
+            font-size: 1rem; /* Increased from 0.875rem (14px) to 1rem (16px) for better readability */
         }
 
         .footer p + p {
@@ -623,18 +623,33 @@
         .social-links {
             display: flex;
             justify-content: center;
-            gap: 1rem;
-            margin-top: 0.5rem;
+            gap: 20px;
+            margin-top: 10px;
         }
 
-        .social-links a {
-            color: #14b8a6;
-            font-size: 1.25rem;
-            transition: color 0.3s ease;
+        .whatsapp-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #37ba8a; 
+            color: white;
+            padding: 10px 15px; 
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px; 
+            font-weight: bold;
+            gap: 5px; 
+            max-width: 250px; 
+            margin: 0 auto; 
         }
 
-        .social-links a:hover {
-            color: #0d9488;
+        .whatsapp-button img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .whatsapp-button:hover {
+            background-color: #209a8c; /* Darker green on hover */
         }
 
         /* Reminder Modal */
@@ -797,9 +812,20 @@
                 margin-bottom: 0px;
             }
 
-            .footer {
-                margin-top: 2rem;
-                font-size: 0.875rem;
+
+            .footer p {
+                font-size: 13px; /* Kept larger for mobile readability */
+            }
+            .whatsapp-button {
+                width: 100%; /* Full-width for easy tapping */
+                font-size: 14px; /* Slightly larger but still compact */
+                font-weight: bold;
+                padding: 8px; /* Smaller padding for mobile */
+                gap: 4px; /* Adjusted gap */
+            }
+            .whatsapp-button img {
+                width: 25px; /* Smaller logo on mobile */
+                height: 25px;
             }
 
             .loading-skeleton {
@@ -914,19 +940,17 @@
         </button>
         <!-- Footer -->
         <footer class="footer">
+            <div class="social-links">
+                <a href="https://chat.whatsapp.com/BVoODYrvwsxHwfPMsZbmoS" target="_blank" class="whatsapp-button" aria-label="واتساب">
+                    <img src="Images/whatsapp-logo.png" alt="واتساب">
+                    <span>انضمي إلينا علي واتساب</span>
+                </a>
+            </div>
             <p>© <span id="current-year"></span> مقرأة ليطمئن قلبي</p>
             <p>جميع الحقوق محفوظة</p>
-            <div class="social-links">
-                <a href="https://x.com/your_account" target="_blank" aria-label="حساب إكس">
-                    <i class="fab fa-x-twitter"></i>
-                </a>
-                <a href="https://t.me/your_group" target="_blank" aria-label="مجموعة تليجرام">
-                    <i class="fab fa-telegram"></i>
-                </a>
-                <a href="/cdn-cgi/l/email-protection#7714181903161403371a16060516165a1f121605035914181a" aria-label="البريد الإلكتروني"></a>
-            </div>
         </footer>
     </div>
+
 
     <!-- Firebase SDK -->
     <script src="firebase-app-compat.js"></script>
@@ -1323,7 +1347,7 @@
                 let filteredSessions = sessions
                     .filter(session => {
                         if (!session.isVisible || !session.time || !session.topic || !session.teacher || !session.day || !session.link) {
-                            console.warn('Skipping invalid session:', session);
+                            //console.warn('Skipping invalid session:', session);
                             return false;
                         }
                         return true;
