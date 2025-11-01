@@ -270,6 +270,37 @@
             </select>
         </div>
 
+        <!-- ==== HADITH MANAGEMENT CARD ==== -->
+        <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">
+                إضافة حديث جديد
+            </h2>
+            <div class="space-y-3">
+                <textarea id="new-hadith-text" 
+                        placeholder="نص الحديث (بالعربية مع التشكيل إن أمكن)..." 
+                        class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600 h-20 resize-none"
+                        dir="rtl"></textarea>
+                <input id="new-hadith-rawi" 
+                    type="text" 
+                    placeholder="الراوي (مثال: أبو هريرة رضي الله عنه)" 
+                    class="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                <button id="add-hadith-btn" 
+                        class="admin-button w-full px-4 py-3 text-white rounded-lg font-semibold transition">
+                    إضافة الحديث
+                </button>
+            </div>
+        </div>
+
+        <!-- ==== SAVED HADITHS LIST ==== -->
+        <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">
+                الحديث المحفوظة
+            </h2>
+            <div id="hadiths-list" class="space-y-3 max-h-60 overflow-y-auto">
+                <!-- Hadiths will load here -->
+            </div>
+        </div>
+
         <!-- Manage Zoom Links -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
             <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">اضافة روابط Zoom جديدة </h2>
@@ -289,7 +320,26 @@
             </div>
             <div id="teacher-list" class="flex flex-wrap gap-2"></div>
         </div>
-
+        <!-- ==== NEW TIME-DIFF CONTROL ==== -->
+        <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
+            <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">
+                فرق التوقيت بين السعودية ومصر
+            </h2>
+            <div class="flex flex-col sm:flex-row gap-2">
+                <select id="time-diff-control"
+                        class="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-600">
+                    <option value="0">نفس التوقيت (مصر = السعودية)</option>
+                    <option value="-1">مصر - ١ ساعة (السعودية أسرع)</option>
+                </select>
+                <button id="save-time-diff"
+                        class="admin-button px-4 sm:px-6 py-2 sm:py-3 text-white rounded-lg font-semibold transition">
+                    حفظ
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 mt-2">
+                يتم استخدام هذا الفرق عند إظهار توقيت السعودية ومصر في رسائل التذكير.
+            </p>
+        </div>
         <!-- Add New Session -->
         <div class="session-card bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-4 sm:mb-6">
             <h2 class="text-lg sm:text-2xl font-semibold text-blue-700 mb-2 sm:mb-3">إضافة حلقة جديدة</h2>
@@ -407,6 +457,9 @@
         let sessions = [];
         let teachers = [];
         let zoomLinks = [];
+
+        let TIME_DIFF = 0;               // default = same
+        let hadiths = [];  // Global array for saved Hadiths
 
         // Current filter state
         let currentDayFilter = 'all';
@@ -626,6 +679,104 @@
             reader.readAsText(file);
         });
         */
+        
+
+
+
+        // Load Hadiths on init
+        async function loadHadiths() {
+            try {
+                const snap = await db.collection('hadiths').orderBy('timestamp', 'desc').get();
+                hadiths = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderHadithsList();
+            } catch (e) {
+                console.error('loadHadiths error', e);
+            }
+        }
+
+        // Render list of Hadiths
+        function renderHadithsList() {
+            const container = document.getElementById('hadiths-list');
+            if (hadiths.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center">لا توجد أحاديث محفوظة</p>';
+                return;
+            }
+            container.innerHTML = hadiths.map(h => `
+                <div class="bg-gray-50 p-3 rounded-lg border-r-4 border-blue-500">
+                    <div class="text-sm text-gray-600 mb-1">الراوي: ${h.rawi}</div>
+                    <div class="text-base font-medium" dir="rtl">${h.text}</div>
+                    <button class="delete-hadith text-red-600 hover:text-red-800 mt-2 text-sm" 
+                            data-id="${h.id}">حذف</button>
+                </div>
+            `).join('');
+
+            // Delete event listeners
+            document.querySelectorAll('.delete-hadith').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    if (confirm('هل أنت متأكد من حذف هذا الحديث؟')) {
+                        try {
+                            await db.collection('hadiths').doc(id).delete();
+                            hadiths = hadiths.filter(h => h.id !== id);
+                            renderHadithsList();
+                        } catch (e) {
+                            console.error('delete hadith error', e);
+                            alert('فشل الحذف');
+                        }
+                    }
+                });
+            });
+        }
+
+        // Add new Hadith
+        document.getElementById('add-hadith-btn').addEventListener('click', async () => {
+            const text = document.getElementById('new-hadith-text').value.trim();
+            const rawi = document.getElementById('new-hadith-rawi').value.trim();
+            if (!text || !rawi) {
+                alert('يرجى ملء نص الحديث والراوي');
+                return;
+            }
+            try {
+                const newHadith = { text, rawi, timestamp: new Date().toISOString() };
+                await db.collection('hadiths').add(newHadith);
+                hadiths.unshift(newHadith);  // Add to front for newest first
+                renderHadithsList();
+                document.getElementById('new-hadith-text').value = '';
+                document.getElementById('new-hadith-rawi').value = '';
+                alert('تم إضافة الحديث بنجاح');
+            } catch (e) {
+                console.error('add hadith error', e);
+                alert('فشل الإضافة');
+            }
+        });
+        /* -------------------------------------------------
+        1. Load current time-diff from Firestore
+        ------------------------------------------------- */
+        async function initTimeDiffControl() {
+            try {
+                const snap = await db.collection('settings').doc('timeDiff').get();
+                const diff = snap.exists ? snap.data().diff : 0;   // default = same
+                TIME_DIFF=diff;
+                document.getElementById('time-diff-control').value = diff;
+            } catch (e) {
+                console.error('initTimeDiffControl error', e);
+            }
+        }
+
+        /* -------------------------------------------------
+        2. Save button
+        ------------------------------------------------- */
+        document.getElementById('save-time-diff').addEventListener('click', async () => {
+            const diff = parseInt(document.getElementById('time-diff-control').value, 10);
+            try {
+                await db.collection('settings').doc('timeDiff').set({ diff }, { merge: true });
+                TIME_DIFF=diff;
+                alert('تم حفظ فرق التوقيت بنجاح');
+            } catch (e) {
+                console.error('save time diff error', e);
+                alert('فشل الحفظ، تحقق من الاتصال');
+            }
+        });
 
         // Render teacher dropdown
         function renderTeacherDropdown(selectElement, selectedTeacher = '') {
@@ -749,10 +900,40 @@
                 });
             });
         }
+        /* -------------------------------------------------
+        2. Helper – add/subtract 1 hour from "٥:٣٠ مساءً"
+        ------------------------------------------------- */
+        function getEgyptTime(saTime) {
+            // saTime example: "٥:٣٠ مساءً"   (Arabic digits + period)
+            const arabicToEng = s => s.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+            const cleaned = arabicToEng(saTime.trim());
+
+            const [timePart, period] = cleaned.split(' ');
+            const [h, m] = timePart.split(':').map(Number);
+
+            // Convert to 24-h
+            let h24 = h;
+            if (period === 'مساءً' && h !== 12) h24 += 12;
+            if (period === 'صباحًا' && h === 12) h24 = 0;
+
+            // Apply diff
+            h24 = (h24 + TIME_DIFF + 24) % 24;   // +24 to avoid negative modulo
+
+            // Back to 12-h + Arabic period
+            const isPM = h24 >= 12;
+            const h12 = h24 === 0 ? 12 : (h24 > 12 ? h24 - 12 : h24);
+            const newPeriod = isPM ? 'مساءً' : 'صباحًا';
+
+            // Arabic digits again
+            const ar = n => n.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+            return `${ar(h12)}:${ar(m.toString().padStart(2,'0'))} ${newPeriod}`;
+        }
 
         // Copy reminder template to clipboard
         function copyReminder(session, buttonId) {
-            const reminderTemplate = `🔊 *تذكير*\n\n📆 *اليوم: ${dayTranslations[session.day]}*\n\n📚 *${session.topic}*\n\n🎙 *${session.teacher}*\n\n🕗 *التوقيت: (  ${session.time}  ) بتوقيت مكة* 🕋\n\n💻 *المنصة: عبر تطبيق زووم*\n\n🔗\n${session.link}\n▫▫▫▫▫`;            
+           // const reminderTemplate = `🔊 *تذكير*\n\n📆 *اليوم: ${dayTranslations[session.day]}*\n\n📚 *${session.topic}*\n\n🎙 *${session.teacher}*\n\n🕗 *التوقيت: (  ${session.time}  ) بتوقيت مكة* 🕋\n\n💻 *المنصة: عبر تطبيق زووم*\n\n🔗\n${session.link}\n▫▫▫▫▫`;            
+            const reminderTemplate = `🔊 *تذكير مقرأة ليطمئن قلبي*\n\n📆 *اليوم: ${dayTranslations[session.day]}*\n\n📖 *${session.topic}*\n\n🎤 *${session.teacher}*\n\n🕗 *(  ${session.time}  )* 🕋\n\n🕙  *(  ${getEgyptTime(session.time)}  )* 🇪🇬\n\n💻 *عبر تطبيق زووم*\n\n🔗\n${session.link}\n▫▫▫▫▫`;
+           
             const feedbackElement = document.getElementById(`reminder-feedback-${buttonId}`);
 
             // Copy to clipboard
@@ -961,12 +1142,15 @@
                 zoomLinks = zoomLinksSnap.docs.map(doc => doc.data());
 
                 await initDisplayControls();
+                await initTimeDiffControl();     
                 setCurrentDayFilter(); // Set filter to current day
                 await renderTeacherList();
                 await renderZoomLinkList();
                 renderTeacherDropdown(newTeacherSelect);
                 renderZoomLinkDropdown(newLinkSelect);
                 await renderAdminSessions();
+                await loadHadiths();
+
             } catch (error) {
                 console.error('Error loading data:', error);
                 alert('فشل تحميل البيانات. تحقق من الاتصال.');
